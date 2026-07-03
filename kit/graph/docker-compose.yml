@@ -1,0 +1,40 @@
+services:
+  neo4j:
+    image: neo4j:5.26.0-community
+    ports:
+      - "${NEO4J_HTTP_PORT:-7474}:7474"
+      - "${NEO4J_BOLT_PORT:-7687}:7687"
+    environment:
+      NEO4J_AUTH: ${NEO4J_AUTH:-neo4j/graphdb-dev-password}
+    volumes:
+      - neo4j_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  etl:
+    build:
+      context: .
+      dockerfile: docker/etl/Dockerfile
+    volumes:
+      - ${RAWDATA_DIR:-${BIOINFORMATICS_DIR:-../rawdata}}:/src/rawdata:ro
+      - ./data:/app/data
+      - ./schema:/app/schema:ro
+      - ./mappings:/app/mappings:ro
+      - ./overrides:/app/overrides:ro
+    environment:
+      RAWDATA_DIR: /src/rawdata
+      BIOINFORMATICS_DIR: /src/rawdata
+      DATA_DIR: /app/data
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-graphdb-dev-password}
+    depends_on:
+      neo4j:
+        condition: service_healthy
+
+volumes:
+  neo4j_data:

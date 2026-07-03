@@ -1,67 +1,54 @@
 # model-intake
 
-在 `foundation-models` 知识库中**收录 Model 或 Tool** 的 Cursor Agent Skill。
+收录 **Model / Tool** 的 Cursor Agent Skill。
 
-触发词示例：收录、纳入、追加收录、添加模型、添加工具、加入知识库。
+**Skill 目录只存模板与工具代码**；所有收录数据写入 `workspace.yaml` 指定的用户目录（首次收录时向用户确认默认路径并持久化）。
 
-## 文件结构
+## 核心文件
 
 | 文件 | 用途 |
 |------|------|
-| [SKILL.md](./SKILL.md) | 主工作流（8 步），Agent 执行入口 |
-| [entity-sync.md](./entity-sync.md) | 关联实体同步细则：Metric / FileType / Dataset |
-| [reference.md](./reference.md) | 分类路由、字段清单、索引规范、ETL 映射路径 |
-| [examples.md](./examples.md) | 收录示例（含实体扩展与数据集待确认场景） |
+| [SKILL.md](./SKILL.md) | Agent 工作流（含步骤 0 工作区配置） |
+| [workspace.yaml.example](./workspace.yaml.example) | 工作区配置示例 |
+| `workspace.yaml` | **运行时生成**，持久化用户数据目录（gitignore） |
+| [kit/workspace.py](./kit/workspace.py) | 路径 propose / init / show / set |
+| [kit/](./kit/) | 模板、bootstrap、search、图谱代码 |
 
-## 工作流概览
+## 首次收录流程
 
 ```
-1. 查重与定位
-2. 信息调研（官方来源，禁止编造）
-3. 确定路径与 model_id / tool_id
-4. 撰写主条目
-5. 关联实体同步 ← 必做
-   ├─ Metric（task_coverage / benchmark）
-   ├─ FileType（input_format / output_format）
-   └─ Dataset（training_data，须验证 url + paper_doi）
-6. 更新 INDEX 与 mappings
-7. ETL 校验（make etl-local）
-8. 验收检查
+1. python kit/workspace.py propose     → 建议默认 root
+2. AskQuestion 用户确认或修改路径
+3. python kit/workspace.py init --root "<路径>" [--with-graph]
+   → 写入 workspace.yaml + bootstrap 用户目录
+4. 按 SKILL.md 收录，数据写入 workspace.root
 ```
 
-## 产出路径
+## 目录职责
 
-| 类型 | 路径 |
+| 位置 | 内容 |
 |------|------|
-| Model | `bioinformatics/model/<subcat>/<id>.md` |
-| Tool | `bioinformatics/tools/<id>.md` |
-| Metric | `bioinformatics/metrics/<id>.md` |
-| FileType | `bioinformatics/formats/<id>.md` |
-| Dataset | `bioinformatics/datasets/<id>.md` |
+| `.cursor/skills/model-intake/` | 模板、kit 代码、workspace.yaml |
+| `workspace.root` | `{rawdata_dir}/`、INDEX.md、Graph_Database/ |
 
-## ETL 映射（收录后须同步）
+## 常用命令
 
-| 实体 | 文件 |
-|------|------|
-| Metric | `Graph_Database/mappings/metrics.yaml` |
-| Dataset | `Graph_Database/mappings/datasets.yaml` |
-| FileType | `Graph_Database/etl/normalize.py` → `_FORMAT_KEYWORDS` |
+```bash
+python kit/workspace.py show
+python kit/workspace.py graph-sync --show
+python kit/workspace.py graph-sync --apply 从不   # 三选一后持久化
+python kit/search.py --entity model --list
+```
 
-## 实体处理策略
+## 图谱同步偏好（graph_sync）
 
-| 实体 | 缺失时 | 无法验证时 |
-|------|--------|------------|
-| Metric | 自动新建词条 + 更新 aliases | 需有定义来源 |
-| FileType | 自动新建词条 + 扩展关键词 | `infer_file_types()` 验证 |
-| Dataset | 验证通过后入库 | **AskQuestion 向用户确认**，禁止静默添加 |
+| preference | 含义 |
+|------------|------|
+| `ask`（默认） | 每次收录三选一询问 |
+| `never` | 从不同步，不再询问 |
+| `always` | 每次默认同步，不再询问 |
 
-## 相关文档
-
-- 关系规则：`Graph_Database/doc/10-relationship-rules.md`
-- 模型模板：`meta/MODEL-RECORD-TEMPLATE.md`
-- 指标模板：`meta/METRIC-RECORD-TEMPLATE.md`
-- 格式模板：`meta/FORMAT-RECORD-TEMPLATE.md`
-- 数据集模板：`meta/DATASET-RECORD-TEMPLATE.md`
+未明确是否构建图谱时，Agent 按上表决策；详见 SKILL.md §0.5。
 
 ---
 

@@ -1,0 +1,38 @@
+# FileType 关键词 → format_id（ETL infer_file_types 数据源）
+# 收录新格式时同步更新此文件，并在 bootstrap 后复制到 Graph_Database/mappings/ 或合并到 etl/normalize.py
+
+keywords:
+  - keyword: fasta
+    format_id: fasta
+  - keyword: ".fa"
+    format_id: fasta
+  - keyword: mmcif
+    format_id: mmcif
+  - keyword: pdbx
+    format_id: mmcif
+  - keyword: ".cif"
+    format_id: mmcif
+  - keyword: pdb
+    format_id: pdb
+  - keyword: smiles
+    format_id: smiles
+  - keyword: sdf
+    format_id: pdb
+  - keyword: mol2
+    format_id: pdb
+  - keyword: json
+    format_id: json
+  - keyword: csv
+    format_id: csv
+  - keyword: tsv
+    format_id: csv
+  - keyword: xvg
+    format_id: csv
+  - keyword: npy
+    format_id: npy
+  - keyword: npz
+    format_id: npy
+  - keyword: python api
+    format_id: python_api
+  - keyword: python sdk
+    format_id: python_api

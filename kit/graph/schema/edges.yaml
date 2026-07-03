@@ -1,0 +1,174 @@
+# 知识图谱关系类型定义
+# 版本: v0.2
+# 可视化数据流规则: doc/10-relationship-rules.md
+
+version: "0.2"
+
+# 可视化层配置（与 ETL 存储方向解耦）
+visualization:
+  # 相对 storage 方向反转箭头，表示数据/能力流入
+  reverse_for_flow:
+    - ACCEPTS      # FileType → Model/Tool
+    - TRAINED_ON   # Dataset → Model
+    - BASED_ON     # 基座 Model → 衍生 Model
+    - INTEGRATES   # 被集成组件 → 集成方
+    - REQUIRES     # Tool → Model
+  # 探索图无箭头（虚线）
+  undirected:
+    - RELATED_TO
+    - ALTERNATIVE_TO
+  # 实现: web/src/utils/edgeColors.ts → orientEdgeForFlow()
+
+BASED_ON:
+  description: 预训练基座 / 父模型
+  from: [Model]
+  to: [Model]
+  directed: true
+  storage: "derived_model → base_model"
+  flow: "base_model → derived_model"
+  source_fields: [pretrained_model, parent_model, backbone]
+
+SUCCESSOR_OF:
+  description: 版本后继（存储与可视化同向：前代 → 后继）
+  from: [Model]
+  to: [Model]
+  directed: true
+  storage: "predecessor → successor"
+  flow: "predecessor → successor"
+  source_fields: [successor_models]
+
+ALTERNATIVE_TO:
+  from: [Model]
+  to: [Model]
+  directed: false
+  source_fields: [alternative_models]
+
+RELATED_TO:
+  from: [Model]
+  to: [Model]
+  directed: false
+  source_fields: [related_models]
+
+INTEGRATES:
+  from: [Model]
+  to: [Model, Tool]
+  directed: true
+  storage: "integrator → component"
+  flow: "component → integrator"
+  source_fields: [integrated_with]
+
+ACCEPTS:
+  from: [Model, Tool]
+  to: [FileType]
+  directed: true
+  storage: "model → file_type"
+  flow: "file_type → model"
+  source_fields: [input_format]
+
+PRODUCES:
+  from: [Model, Tool]
+  to: [FileType]
+  directed: true
+  storage: "model → file_type"
+  flow: "model → file_type"
+  source_fields: [output_format]
+
+USES_MODALITY:
+  description: 已废弃，模态内嵌为 Model/Dataset.modalities
+  deprecated: true
+  from: [Model]
+  to: [Modality]
+  directed: true
+  source_fields: [modalities]
+
+MEASURES:
+  description: 模型可预测/输出的量化指标
+  from: [Model, Tool]
+  to: [Metric]
+  directed: true
+  storage: "model → metric"
+  flow: "model → metric"
+  source_fields: [task_coverage]
+
+PREDICTS:
+  description: 已废弃，由 MEASURES + Metric 替代
+  deprecated: true
+  from: [Model]
+  to: [Task]
+  directed: true
+  source_fields: [task_coverage]
+
+BELONGS_TO:
+  from: [Model]
+  to: [Category]
+  directed: true
+  storage: "model → category"
+  flow: "model → category"
+  source_fields: [category]
+
+TRAINED_ON:
+  from: [Model]
+  to: [Dataset]
+  directed: true
+  storage: "model → dataset"
+  flow: "dataset → model"
+  source_fields: [training_data]
+
+EVALUATED_ON:
+  from: [Model]
+  to: [Benchmark]
+  directed: true
+  source_fields: [benchmarks]
+
+DEVELOPED_BY:
+  description: 已废弃，组织内嵌为 Model.organization / Dataset.organizations
+  deprecated: true
+  from: [Model, Tool]
+  to: [Organization]
+  directed: true
+  source_fields: [organization, maintainer]
+
+DESCRIBED_IN:
+  from: [Model, Tool]
+  to: [Paper]
+  directed: true
+  source_fields: [paper, paper_url]
+
+HAS_LICENSE:
+  from: [Model, Tool]
+  to: [License]
+  directed: true
+  source_fields: [license, license_type]
+
+IMPLEMENTED_IN:
+  description: 已废弃，框架内嵌为 Model.framework
+  deprecated: true
+  from: [Model]
+  to: [Framework]
+  directed: true
+  source_fields: [framework]
+
+HOSTED_AT:
+  description: 已废弃，托管渠道内嵌为 Model/Tool.online_resources
+  deprecated: true
+  from: [Model, Tool]
+  to: [Repository]
+  directed: true
+  source_fields: [github, huggingface, zenodo, homepage, docker]
+
+REQUIRES:
+  from: [Model]
+  to: [Tool]
+  directed: true
+  storage: "model → tool"
+  flow: "tool → model"
+
+IS_A:
+  from: [Task, Ontology]
+  to: [Ontology]
+  directed: true
+
+INTRODUCES:
+  from: [Paper]
+  to: [Model, Tool, Benchmark]
+  directed: true

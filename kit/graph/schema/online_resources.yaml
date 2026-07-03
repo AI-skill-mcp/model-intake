@@ -1,0 +1,118 @@
+# 在线资源渠道规范
+# Model 与 Tool 节点共用 online_resources 结构
+# 版本: v0.1
+
+description: >
+  主流分发与访问渠道的统一字段定义。
+  所有 URL 字段值为完整 https 链接；缺失时省略该键或设为 null。
+  ETL 从 bioinformatics/model/*.md 的 github / huggingface / zenodo / homepage 等字段映射。
+
+channels:
+  github:
+    label: GitHub
+    value_type: url
+    source_fields: [github]
+    example: https://github.com/Bhattacharya-Lab/RNAbpFlow
+
+  huggingface:
+    label: Hugging Face
+    value_type: url
+    source_fields: [huggingface, hf_model, model_card]
+    example: https://huggingface.co/facebook/esm2_t33_650M_UR50D
+    notes: 源文档为「需确认」或纯 emoji 时保留 raw_text 到 _meta
+
+  zenodo:
+    label: Zenodo
+    value_type: url
+    source_fields: [zenodo]
+    example: https://doi.org/10.5281/zenodo.18305861
+
+  homepage:
+    label: 官方主页
+    value_type: url
+    source_fields: [homepage]
+    example: https://ai.meta.com/esm
+
+  docker:
+    label: Docker
+    value_type: string
+    source_fields: [docker, container]
+    example: akiyamalab/megadock:gpu
+    notes: 可为镜像名或 Registry URL
+
+  colab:
+    label: Google Colab
+    value_type: url
+    source_fields: [colab, colab_notebook]
+    example: https://colab.research.google.com/...
+
+  pypi:
+    label: PyPI
+    value_type: string
+    value_format: url_or_package_name
+    source_fields: [pypi, python_package, installation]
+    example: fair-esm
+    notes: 优先存 PyPI 页面 URL；仅知包名时存包名并由前端拼接
+
+  modelscope:
+    label: ModelScope
+    value_type: url
+    source_fields: [modelscope]
+    example: https://modelscope.cn/models/...
+
+  papers_with_code:
+    label: Papers with Code
+    value_type: url
+    source_fields: [papers_with_code, pwc]
+    example: https://paperswithcode.com/paper/...
+
+  api_endpoint:
+    label: API 端点
+    value_type: url
+    source_fields: [api_endpoint]
+    example: https://api.esmatlas.com/v1/...
+
+  weights_url:
+    label: 权重直链
+    value_type: url
+    source_fields: [weights, checkpoint, model_weights]
+    example: https://...
+    notes: 非 HuggingFace/Zenodo 的独立权重下载地址
+
+# 节点上的承载结构
+node_embed_schema:
+  online_resources:
+    type: object
+    additional_properties: false
+    properties:
+      github: { type: [string, "null"], format: uri }
+      huggingface: { type: [string, "null"], format: uri }
+      zenodo: { type: [string, "null"], format: uri }
+      homepage: { type: [string, "null"], format: uri }
+      docker: { type: [string, "null"] }
+      colab: { type: [string, "null"], format: uri }
+      pypi: { type: [string, "null"] }
+      modelscope: { type: [string, "null"], format: uri }
+      papers_with_code: { type: [string, "null"], format: uri }
+      api_endpoint: { type: [string, "null"], format: uri }
+      weights_url: { type: [string, "null"], format: uri }
+  online_resources_meta:
+    type: object
+    description: 渠道元数据（验证状态、原始文本、最后检查时间）
+    additional_properties:
+      type: object
+      properties:
+        status: { enum: [verified, unverified, placeholder, broken] }
+        raw_text: { type: string }
+        checked_at: { type: string, format: date }
+
+# 已废弃：托管信息仅存于 online_resources 属性，不再生成 HOSTED_AT 边
+graph_relationship:
+  deprecated: true
+  type: HOSTED_AT
+  from: [Model, Tool]
+  to: Repository
+  edge_properties:
+    channel: string   # 对应 channels 的键名
+    url: string
+    is_primary: bool

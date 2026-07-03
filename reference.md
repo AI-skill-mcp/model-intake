@@ -32,7 +32,8 @@ foundation-models/
     └── datasets/       # Dataset 词条
 ```
 
-**收录时实体同步细则**：`.cursor/skills/model-intake/entity-sync.md`
+**收录时实体同步细则**：`.cursor/skills/model-intake/entity-sync.md`  
+**独立模式 / 全新目录**：`.cursor/skills/model-intake/standalone.md` + `kit/bootstrap.py`
 
 **ETL 映射文件**（收录后须同步）：
 

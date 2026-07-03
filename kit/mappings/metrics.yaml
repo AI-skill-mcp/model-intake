@@ -1,0 +1,69 @@
+# 性能指标白名单（starter seed，收录时可扩展）
+# task_coverage 条目经 aliases 匹配后映射为 metric_id
+
+metrics:
+  plddt:
+    label: pLDDT
+    unit: 0-100
+    aliases:
+      - pLDDT
+      - pLDDT置信度
+      - 结构置信度
+      - 置信度评估
+
+  tm_score:
+    label: TM-score
+    unit: dimensionless
+    aliases:
+      - TM-score
+      - TM score
+      - TMscore
+      - 结构相似度
+
+  kcat:
+    label: kcat
+    unit: s⁻¹
+    aliases:
+      - kcat预测
+      - kcat
+      - 催化常数
+
+  km:
+    label: Km
+    unit: M
+    aliases:
+      - Km预测
+      - Km
+      - 米氏常数
+
+  pkd:
+    label: pKd / pKi
+    unit: log(M)
+    aliases:
+      - pKd预测
+      - pKi预测
+      - pKd
+      - pKi
+
+  ddG_bind:
+    label: ΔΔG_bind
+    unit: kcal/mol
+    aliases:
+      - ΔΔGbind预测
+      - ΔΔG预测
+      - 结合自由能变化
+
+  embedding:
+    label: 序列嵌入
+    unit: vector
+    aliases:
+      - 序列嵌入
+      - embedding
+      - 蛋白嵌入
+
+  solubility:
+    label: 溶解度
+    unit: logS
+    aliases:
+      - 溶解度预测
+      - 水溶性预测

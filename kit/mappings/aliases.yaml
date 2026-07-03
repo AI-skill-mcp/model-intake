@@ -1,0 +1,8 @@
+# Model / Tool 名称别名（收录时按需扩展）
+
+models: {}
+
+tools: {}
+
+external_policy:
+  create_stub: true

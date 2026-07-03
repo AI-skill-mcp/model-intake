@@ -1,0 +1,12 @@
+# 训练数据集别名（starter seed）
+# 仅映射至 bioinformatics/datasets/ 中具备 url + paper_doi 的词条
+
+training_text_aliases:
+  "PDB (蛋白质数据库)": pdb
+  "PDB (实验结构) + 多种序列数据库": pdb
+  "PDB + 多种生物分子复合物数据": pdb
+  "PDBbind": pdbbind
+  "PDBBind": pdbbind
+  "UniRef50 / UniRef90": uniref50-uniref90
+  "~2300万条RNA序列": rnacentral
+  "~2300万条RNA序列 (来自RNAcentral)": rnacentral
