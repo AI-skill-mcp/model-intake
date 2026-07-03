@@ -217,6 +217,7 @@ make import-local
 
 ## 参考资源
 
+- 本 Skill 目录说明：[README.md](README.md)
 - 分类与索引：[reference.md](reference.md)
 - **实体同步细则**：[entity-sync.md](entity-sync.md)
 - 收录示例：[examples.md](examples.md)
