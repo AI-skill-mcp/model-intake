@@ -1,8 +1,7 @@
 ---
 name: model-intake
 description: >-
-  收录新底层模型或工具到知识库：Skill 目录仅存模板与工具代码，收录数据写入
-  workspace.yaml 指定的用户目录；首次收录时向用户确认默认路径并持久化配置。
+  收录新底层模型或工具到知识库：收录数据写入 workspace.yaml 指定的用户目录，并可选的基于收录的知识库构建图数据库;首次收录时向用户确认默认路径并持久化配置。
   当用户说「收录」「纳入」「添加模型」「添加工具」「初始化知识库」时使用。
 ---
 
@@ -12,10 +11,10 @@ description: >-
 
 ## 目录职责（铁律）
 
-| 位置 | 存放内容 | 禁止 |
-|------|----------|------|
-| `.cursor/skills/model-intake/` | 模板、kit 代码、**workspace.yaml** | **禁止写入收录数据** |
-| `workspace.root`（用户确认） | `{rawdata_dir}/`、`Graph_Database/`、INDEX.md | — |
+| 位置                           | 存放内容                                      | 禁止                 |
+| ------------------------------ | --------------------------------------------- | -------------------- |
+| `.cursor/skills/model-intake/` | 模板、kit 代码、**workspace.yaml**            | **禁止写入收录数据** |
+| `workspace.root`（用户确认）   | `{rawdata_dir}/`、`Graph_Database/`、INDEX.md | —                    |
 
 > `{rawdata_dir}` 由 `workspace.yaml` 配置，默认 `rawdata`；embedded monorepo 设为 `bioinformatics`。
 
@@ -57,10 +56,10 @@ python .cursor/skills/model-intake/kit/workspace.py show
 
 直接读取 `workspace.yaml`，所有读写相对于：
 
-| 键 | 含义 |
-|----|------|
-| `workspace.root` | 知识库根 |
-| `workspace.rawdata_dir` | 原始数据目录名（默认 `rawdata`） |
+| 键                             | 含义                              |
+| ------------------------------ | --------------------------------- |
+| `workspace.root`               | 知识库根                          |
+| `workspace.rawdata_dir`        | 原始数据目录名（默认 `rawdata`）  |
 | `workspace.graph_database_dir` | 图谱 ETL（默认 `Graph_Database`） |
 
 ```python
@@ -86,11 +85,11 @@ python kit/workspace.py init --from-workspace
 
 配置块：`workspace.yaml` → `graph_sync.preference`（默认 `ask`）
 
-| 值 | 含义 | 本次收录 | 后续 |
-|----|------|----------|------|
-| `never` | **从不** | 不同步 ETL | 不再询问 |
-| `ask` | **再说** | 不同步 ETL | 下次收录再次三选一询问 |
-| `always` | **默认** | 同步 ETL | 以后自动同步，不再询问 |
+| 值       | 含义     | 本次收录   | 后续                   |
+| -------- | -------- | ---------- | ---------------------- |
+| `never`  | **从不** | 不同步 ETL | 不再询问               |
+| `ask`    | **再说** | 不同步 ETL | 下次收录再次三选一询问 |
+| `always` | **默认** | 同步 ETL   | 以后自动同步，不再询问 |
 
 #### 决策流程
 
@@ -104,10 +103,10 @@ python kit/workspace.py init --from-workspace
 
 > 是否同步构建知识图谱（ETL → Neo4j）？
 
-| 选项 ID | 标签 | 效果 |
-|---------|------|------|
-| `never` | **从不** — 本次不同步，以后不再询问 | preference=never，跳过 ETL |
-| `ask` | **再说** — 本次不同步，下次添加时再问 | preference=ask，跳过 ETL |
+| 选项 ID  | 标签                                      | 效果                        |
+| -------- | ----------------------------------------- | --------------------------- |
+| `never`  | **从不** — 本次不同步，以后不再询问       | preference=never，跳过 ETL  |
+| `ask`    | **再说** — 本次不同步，下次添加时再问     | preference=ask，跳过 ETL    |
 | `always` | **默认** — 本次同步，以后每次收录默认同步 | preference=always，执行 ETL |
 
 用户选择后立即持久化：
@@ -157,12 +156,12 @@ rg -i "<name>" "$(python -c 'import yaml;from pathlib import Path;c=yaml.safe_lo
 
 模板来源（**只在 Skill/kit 读取，写入 workspace.root**）：
 
-| 用途 | Skill 内模板 |
-|------|-------------|
-| Model | `kit/templates/model.md.tpl` |
-| Tool | `kit/templates/tool.md.tpl` |
-| Metric | `kit/templates/metric.md.tpl` |
-| Format | `kit/templates/format.md.tpl` |
+| 用途    | Skill 内模板                   |
+| ------- | ------------------------------ |
+| Model   | `kit/templates/model.md.tpl`   |
+| Tool    | `kit/templates/tool.md.tpl`    |
+| Metric  | `kit/templates/metric.md.tpl`  |
+| Format  | `kit/templates/format.md.tpl`  |
 | Dataset | `kit/templates/dataset.md.tpl` |
 
 写入路径（均在 `workspace.root` 下，`{rawdata_dir}` 来自配置）：
