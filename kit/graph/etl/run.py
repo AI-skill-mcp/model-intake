@@ -1,5 +1,9 @@
 """
-ETL 主入口：解析 bioinformatics → 写出 data/。
+ETL 主入口：解析原始数据目录 → 写出 data/。
+
+原始数据目录来自 workspace.yaml 的 rawdata_dir 配置：
+- embedded monorepo: bioinformatics/
+- standalone: rawdata/
 
 用法: python -m etl.run
 """
@@ -21,7 +25,7 @@ def main() -> int:
     paths.data.mkdir(parents=True, exist_ok=True)
 
     if not paths.bioinformatics.exists():
-        print(f"错误: bioinformatics 目录不存在: {paths.bioinformatics}", file=sys.stderr)
+        print(f"错误: 原始数据目录不存在: {paths.bioinformatics}（workspace.yaml 中 {{{{rawdata_dir}}}} 配置）", file=sys.stderr)
         return 1
 
     print(f"扫描: {paths.bioinformatics}")

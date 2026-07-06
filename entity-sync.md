@@ -2,6 +2,11 @@
 
 收录 Model 或 Tool 时，除主条目外**必须同步提取并落库**三类关联实体，以便 ETL 建边与探索页展示。
 
+> 路径约定：`{rawdata_dir}` 与 `{graph_database_dir}` 均来自 `workspace.yaml`。
+> embedded monorepo：`{rawdata_dir}=bioinformatics`、`{graph_database_dir}=Graph_Database`；
+> standalone：`{rawdata_dir}=rawdata`、`{graph_database_dir}=Graph_Database`。
+> 下文为简洁起见写 `bioinformatics/` 与 `Graph_Database/`，**实操时按 workspace.yaml 替换**。
+
 ```
 关联实体提取:
 - [ ] A. 性能指标 (Metric)
@@ -32,7 +37,7 @@
    rg -i "<metric-name>" bioinformatics/metrics/ Graph_Database/mappings/metrics.yaml
    ```
 2. 读取 `Graph_Database/mappings/metrics.yaml`，用 `aliases` 匹配中文/英文变体。
-3. **已存在** → 在模型 `task_coverage` 中使用与白名单一致的表述（便于 ETL 建 `PREDICTS` 边）。
+3. **已存在** → 在模型 `task_coverage` 中使用与白名单一致的表述（便于 ETL 建 `MEASURES` 边）。
 4. **不存在** → 执行 A.3 自动扩展。
 
 ### A.3 自动新建 Metric 词条
@@ -46,7 +51,7 @@
 | `definition` | 生物学/化学定义（有官方来源） |
 | `quantity_kind` | 物理量类别 |
 | `unit` | 单位（无量纲写 `dimensionless`） |
-| `direction` | higher_is_better / lower_is_better / context_dependent |
+| `direction` | `higher_is_better` 字段：true / false（`context_dependent` 类指标在 description 中说明） |
 | `aliases` | ETL 别名列表（含中英文、论文常用写法） |
 
 同步更新 `Graph_Database/mappings/metrics.yaml`：
@@ -101,17 +106,21 @@
 | `description` | 记录结构与语义 |
 | `common_role` | input / output / both |
 
-**必须同步** `Graph_Database/etl/normalize.py` → `_FORMAT_KEYWORDS`：
+**必须同步** `{graph_database_dir}/mappings/format-keywords.yaml`（`infer_file_types` 主数据源）：
 
-```python
-("新关键词", "format_id"),   # 小写子串，勿与已有项冲突
-(".ext", "format_id"),
+```yaml
+  - keyword: 新关键词
+    format_id: format_id
+  - keyword: ".ext"
+    format_id: format_id
 ```
+
+> `etl/normalize.py` 内置 `_FORMAT_KEYWORDS` 仅作 yaml 缺失时的 fallback，主数据源始终是 yaml。
 
 新增后本地验证：
 
 ```bash
-cd Graph_Database && python -c "
+cd "{graph_database_dir}" && python -c "
 from etl.normalize import infer_file_types
 print(infer_file_types('<模型 input_format 原文>'))
 print(infer_file_types('<模型 output_format 原文>'))
@@ -220,7 +229,7 @@ make import-local   # 若 Neo4j 可用
 | `errors` | 空 |
 | `warnings` 中 training_data | 新收录模型的 training_data 均已映射 |
 | 节点计数 | Dataset / Metric / FileType 增量符合预期 |
-| 边 | Model→Dataset `TRAINED_ON`、Model→Metric `PREDICTS`、Model→FileType `ACCEPTS`/`PRODUCES` |
+| 边 | Model→Dataset `TRAINED_ON`、Model→Metric `MEASURES`、Model→FileType `ACCEPTS`/`PRODUCES` |
 
 ### D.2 Tool 收录差异
 

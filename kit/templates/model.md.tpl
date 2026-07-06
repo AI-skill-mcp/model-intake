@@ -19,7 +19,7 @@
 | `release_date` | YYYY-MM |
 | `category` | protein / enzyme / rna / … |
 | `task_coverage` | [任务1, 任务2] |
-| `license` | |
+| `license` | 许可证名称（如 MIT / Apache-2.0 / CC-BY-NC-4.0） |
 | `paper_url` | https://doi.org/… |
 | `github` | |
 
@@ -69,7 +69,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| `license_type` | open / research_only / proprietary |
+| `license_type` | open / research_only / proprietary（按用途归类；具体协议名见上方 `license` 字段） |
 | `license_url` | |
 | `commercial_use` | true / false |
 

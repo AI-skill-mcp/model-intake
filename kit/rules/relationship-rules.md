@@ -41,7 +41,6 @@
 | `INTEGRATES` | Model → Model/Tool | `integrated_with` | 集成方 → 被集成组件 |
 | `REQUIRES` | Model → Tool | `used_by_models`（Tool 侧反查） | 模型依赖工具 |
 | `SUCCESSOR_OF` | Model → Model | `successor_models` | 当前模型 → 后继版本 |
-| `RELATED_TO` | Model ↔ Model | `related_models` | 无向弱关联 |
 | `ALTERNATIVE_TO` | Model ↔ Model | `alternative_models` | 无向可替代 |
 
 已废弃、默认不在探索图展示：`DESCRIBED_IN`、`HAS_LICENSE`、`HOSTED_AT`、`USES_MODALITY`、`DEVELOPED_BY`、`IMPLEMENTED_IN`（属性已内嵌 Model/Tool 节点）。
@@ -59,7 +58,6 @@
 | `MEASURES` | Model/Tool → Metric | 预测结果 |
 | `BELONGS_TO` | Model → Category | 分类归属 |
 | `SUCCESSOR_OF` | 前代 Model → 后继 Model | 版本演进（与存储同向） |
-| `RELATED_TO` | 无箭头（虚线） | 对等关联 |
 | `ALTERNATIVE_TO` | 无箭头（虚线） | 可互换 |
 
 ### 2.3 典型执行链路
@@ -140,7 +138,7 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 |------|------|------|
 | 实体 | `Model` | 至少 1 项；全选后再点全选 → 仅保留第一项 |
 | 领域 | `protein` | 至少 1 项；同上 |
-| 关系 | `RELATED_TO`、`INTEGRATES`、`BASED_ON`、`ALTERNATIVE_TO` | 可空 |
+| 关系 | `INTEGRATES`、`BASED_ON`、`ALTERNATIVE_TO` | 可空 |
 
 实现：`ExploreFilterProvider`、`FilterDropdown`、`ExploreFiltersNav`
 
@@ -152,7 +150,7 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 ### 5.3 边样式
 
 - 有向边：实线 + 三角箭头（颜色按 `EDGE_TYPE_COLORS`）
-- 无向边（`RELATED_TO`、`ALTERNATIVE_TO`）：虚线、无箭头
+- 无向边（`ALTERNATIVE_TO`）：虚线、无箭头
 - 边标签：中文（`edgeLabel()`）
 
 ---

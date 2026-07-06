@@ -15,7 +15,6 @@ visualization:
     - REQUIRES     # Tool → Model
   # 探索图无箭头（虚线）
   undirected:
-    - RELATED_TO
     - ALTERNATIVE_TO
   # 实现: web/src/utils/edgeColors.ts → orientEdgeForFlow()
 
@@ -42,12 +41,6 @@ ALTERNATIVE_TO:
   to: [Model]
   directed: false
   source_fields: [alternative_models]
-
-RELATED_TO:
-  from: [Model]
-  to: [Model]
-  directed: false
-  source_fields: [related_models]
 
 INTEGRATES:
   from: [Model]

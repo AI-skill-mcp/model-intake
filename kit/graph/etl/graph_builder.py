@@ -58,7 +58,7 @@ RESOURCE_KEYS = [
 ]
 
 RELATION_LIST_FIELDS = {
-    "related_models": "RELATED_TO",
+    # related_models / RELATED_TO 已废弃：语义过弱，不再建边
     "alternative_models": "ALTERNATIVE_TO",
     "successor_models": "SUCCESSOR_OF",
     "integrated_with": "INTEGRATES",
@@ -133,9 +133,10 @@ def _attach_file_io_edges(
     entity_type: str,
     entity_id: str,
     fields: dict[str, str],
+    mappings_dir=None,
 ) -> None:
     """为 Model / Tool 节点建立 ACCEPTS / PRODUCES 边。"""
-    for fmt in infer_file_types(fields.get("input_format", "")):
+    for fmt in infer_file_types(fields.get("input_format", ""), mappings_dir):
         _add_node(nodes, {
             "node_type": "FileType",
             "format_id": fmt,
@@ -143,7 +144,7 @@ def _attach_file_io_edges(
         })
         _add_edge(edges, "ACCEPTS", entity_type, entity_id, "FileType", fmt, {"required": True})
 
-    for fmt in infer_file_types(fields.get("output_format", "")):
+    for fmt in infer_file_types(fields.get("output_format", ""), mappings_dir):
         _add_node(nodes, {
             "node_type": "FileType",
             "format_id": fmt,
@@ -288,7 +289,7 @@ def build_graph(paths: Paths) -> tuple[dict[str, dict], list[dict], dict[str, st
             _add_edge(edges, "MEASURES", "Model", model_id, "Metric", metric_id)
 
         # FileTypes input/output
-        _attach_file_io_edges(edges, nodes, "Model", model_id, fields)
+        _attach_file_io_edges(edges, nodes, "Model", model_id, fields, paths.mappings)
 
         # Paper → 嵌入 Model 属性，不创建独立 Paper 节点
         paper_title = fields.get("paper", "").strip()
@@ -453,7 +454,7 @@ def build_graph(paths: Paths) -> tuple[dict[str, dict], list[dict], dict[str, st
             tool_node["license"] = fields["license"].strip()
         _add_node(nodes, tool_node)
 
-        _attach_file_io_edges(edges, nodes, "Tool", tool_id, fields)
+        _attach_file_io_edges(edges, nodes, "Tool", tool_id, fields, paths.mappings)
 
         for metric_id in extract_metrics_from_task_coverage(
             fields.get("task_coverage", ""), metric_aliases

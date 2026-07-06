@@ -16,7 +16,7 @@
 | `name` | |
 | `unit` | |
 | `quantity_kind` | |
-| `higher_is_better` | true / false |
+| `higher_is_better` | true / false（context_dependent 类指标在 description 中说明） |
 | `domains` | [protein, rna, …] |
 | `definition` | |
 | `aliases` | 别名1, 别名2 |

@@ -149,8 +149,9 @@ python kit/workspace.py graph-sync --set always
 
 ```bash
 python .cursor/skills/model-intake/kit/search.py "<name>"
-rg -i "<name>" "$(python -c 'import yaml;from pathlib import Path;c=yaml.safe_load(open(\".cursor/skills/model-intake/workspace.yaml\"));print(Path(c[\"workspace\"][\"root\"])/(c[\"workspace\"][\"bioinformatics_dir\"]))')" --glob "*.md"
 ```
+
+`search.py` 会同时扫描 rawdata 目录、INDEX.md 和 mappings，输出已收录的全部匹配条目。
 
 ### 2–4. 调研 / 路径 / 撰写
 

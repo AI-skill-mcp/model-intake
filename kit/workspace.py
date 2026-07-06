@@ -494,7 +494,7 @@ def main() -> int:
     p_init.add_argument("--root", type=Path, help="知识库根目录（绝对或 ~ 路径）")
     p_init.add_argument("--name", default="", help="显示名称")
     p_init.add_argument("--mode", choices=["embedded", "standalone"], help="工作模式")
-    p_init.add_argument("--with-graph", action="store_true", default=True, help="部署 Graph_Database（默认启用）")
+    p_init.add_argument("--with-graph", action="store_true", help="部署 Graph_Database（默认启用；与 --no-graph 冲突时以 --no-graph 为准）")
     p_init.add_argument("--no-graph", action="store_true", help="不部署 Graph_Database")
     p_init.add_argument("--no-seeds", action="store_true", help="不复制 starter seeds")
     p_init.add_argument("--force", action="store_true", help="强制补充 bootstrap")

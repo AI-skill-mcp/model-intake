@@ -41,7 +41,7 @@ foundation-models/
 |------|----------|
 | Metric | `Graph_Database/mappings/metrics.yaml` |
 | Dataset | `Graph_Database/mappings/datasets.yaml` |
-| FileType | `Graph_Database/etl/normalize.py` → `_FORMAT_KEYWORDS` |
+| FileType | `mappings/format-keywords.yaml` |
 
 顶层待建分类（README 已规划、目录可能为空）：`llm/`、`embedding/`、`vlm/`、`multimodal/`、`audio/`。
 
@@ -91,7 +91,7 @@ foundation-models/
 - gpu_memory / inference_speed（官方或实测；否则标注需评估）
 - github / huggingface 链接
 - quick_start 代码或命令
-- related_models, alternatives
+- alternative_models / integrated_with（明确可替代或集成时再写；勿写相关关系）
 - bibtex 引用
 
 ### 应用场景标签（至少选一个）
@@ -155,15 +155,15 @@ foundation-models/
 | 查重 | `bioinformatics/metrics/` + `Graph_Database/mappings/metrics.yaml` |
 | 来源 | `task_coverage`、论文 benchmark 表 |
 | 缺失时 | 按 `meta/METRIC-RECORD-TEMPLATE.md` 新建词条 + 更新 `metrics.yaml` aliases |
-| ETL 边 | Model/Tool → Metric：`PREDICTS` |
+| ETL 边 | Model/Tool → Metric：`MEASURES` |
 
 ### FileType（输入输出格式）
 
 | 步骤 | 动作 |
 |------|------|
-| 查重 | `bioinformatics/formats/` + `etl/normalize.py` → `_FORMAT_KEYWORDS` |
+| 查重 | `bioinformatics/formats/` + `mappings/format-keywords.yaml`（主数据源） |
 | 来源 | `input_format`、`output_format` |
-| 缺失时 | 按 `meta/FORMAT-RECORD-TEMPLATE.md` 新建词条 + 扩展 `_FORMAT_KEYWORDS` |
+| 缺失时 | 按 `meta/FORMAT-RECORD-TEMPLATE.md` 新建词条 + 在 `format-keywords.yaml` 中追加关键词 |
 | 验证 | `infer_file_types('<原文>')` 返回预期 format_id |
 | ETL 边 | Model/Tool → FileType：`ACCEPTS` / `PRODUCES` |
 

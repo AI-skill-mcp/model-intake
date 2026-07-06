@@ -16,6 +16,18 @@
 
 ### single-cell（0 个）
 
+### multi-modal（0 个）
+
+### function（0 个）
+
+### interaction（0 个）
+
+### ptm（0 个）
+
+### expression（0 个）
+
+### cellular（0 个）
+
 ### 其他
 
 - [metrics](./{{rawdata_dir}}/metrics/) — 性能指标词条

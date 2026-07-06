@@ -1,2 +1,16 @@
 # 用户工作区配置（含本地绝对路径，勿提交版本库）
 workspace.yaml
+
+# Python 缓存
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache/
+
+# 编辑器
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store

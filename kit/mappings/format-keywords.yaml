@@ -1,5 +1,5 @@
-# FileType 关键词 → format_id（ETL infer_file_types 数据源）
-# 收录新格式时同步更新此文件，并在 bootstrap 后复制到 Graph_Database/mappings/ 或合并到 etl/normalize.py
+# FileType 关键词 → format_id（ETL infer_file_types 主数据源）
+# 收录新格式时只更新此文件，etl/normalize.py 会自动加载；不再需要同步改 Python 代码。
 
 keywords:
   - keyword: fasta
