@@ -12,7 +12,8 @@
 │   ├── tools/               # Tool 卡片
 │   ├── metrics/             # Metric 词条
 │   ├── formats/             # FileType 词条
-│   └── datasets/            # Dataset 词条（须 url + paper_doi）
+│   ├── datasets/            # Dataset 词条（须 url + paper_doi）
+│   └── paper/               # 论文全文 PDF（开放获取）
 ├── meta/                    # 条目模板（撰写参考）
 ├── .kbase/                  # manifest、检索脚本、规则副本
 └── Graph_Database/          # 可选：Neo4j 图谱 ETL
@@ -28,11 +29,12 @@ python .kbase/search.py --entity model --list
 python .kbase/search.py --entity dataset pdb
 ```
 
-### 收录新模型
+### 收录新条目
 
-1. 复制 `meta/model.template.md` → `{{rawdata_dir}}/model/<category>/<id>.md`
-2. 同步 Metric / Format / Dataset（见 `.kbase/rules/relationship-rules.md`）
-3. 更新 `INDEX.md`
+1. 复制 `meta/*.template.md`（bootstrap 自 kit 模板生成）→ `{rawdata_dir}/model|tools|metrics|formats|datasets/<id>.md`
+2. 字段结构参考 monorepo `meta/*-RECORD-FULL.md`
+3. 同步 Metric / Format / Dataset（见 `.kbase/rules/relationship-rules.md`）
+4. 更新 `INDEX.md`
 
 ### 图谱（若已 `--with-graph` 初始化）
 

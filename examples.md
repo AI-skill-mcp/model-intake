@@ -22,6 +22,14 @@ rg -i "rnabpflow" --glob "*.md"  # 无结果 → 新建
 - I/O：输入 FASTA + 碱基配对 JSON；输出 PDB/mmCIF
 - 指标：task_coverage → RNA 3D结构预测、构象集合采样 → 映射 `tm-score`、`plddt`
 
+#### 2b. 论文 PDF
+```bash
+python .cursor/skills/model-intake/kit/paper_fetch.py fetch \
+  --paper-url "https://doi.org/10.1038/s41592-026-03128-4" \
+  --entity-id rnabpflow
+# → 成功则 bioinformatics/paper/10.1038-s41592-026-03128-4.pdf，条目填 paper_pdf
+```
+
 #### 3. 分类决策
 - 主任务：RNA 3D 结构生成
 - 路径：`bioinformatics/model/rna/rnabpflow.md`

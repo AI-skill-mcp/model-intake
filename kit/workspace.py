@@ -151,6 +151,11 @@ class WorkspacePaths:
         return self.rawdata
 
     @property
+    def paper_dir(self) -> Path:
+        """论文全文 PDF 目录：{rawdata_dir}/paper/。"""
+        return self.rawdata / "paper"
+
+    @property
     def mappings_dir(self) -> Path | None:
         if self.graph_database:
             return self.graph_database / "mappings"
@@ -380,6 +385,7 @@ def cmd_show(_: argparse.Namespace) -> int:
     print("解析路径:")
     print(f"  root:           {paths.root}")
     print(f"  rawdata:        {paths.rawdata}  (rel={paths.rawdata_rel})")
+    print(f"  paper_dir:      {paths.paper_dir}")
     print(f"  graph_database: {paths.graph_database or '(未启用)'}")
     pref = get_graph_sync_preference(config)
     labels = {GRAPH_SYNC_NEVER: "从不", GRAPH_SYNC_ASK: "再说(每次询问)", GRAPH_SYNC_ALWAYS: "默认(每次同步)"}

@@ -1,7 +1,7 @@
 ---
 name: model-intake
 description: >-
-  收录新底层模型或工具到知识库：收录数据写入 workspace.yaml 指定的用户目录，并可选的基于收录的知识库构建图数据库;首次收录时向用户确认默认路径并持久化配置。
+  收录新底层模型或工具到知识库：收录数据写入 workspace.yaml 指定的用户目录，并可选的基于收录的知识库构建图数据库;首次收录时向用户确认默认路径并持久化配置；尝试下载论文 PDF 到 {rawdata_dir}/paper/。
   当用户说「收录」「纳入」「添加模型」「添加工具」「初始化知识库」时使用。
 ---
 
@@ -16,7 +16,8 @@ description: >-
 | `.cursor/skills/model-intake/` | 模板、kit 代码、**workspace.yaml**            | **禁止写入收录数据** |
 | `workspace.root`（用户确认）   | `{rawdata_dir}/`、`Graph_Database/`、INDEX.md | —                    |
 
-> `{rawdata_dir}` 由 `workspace.yaml` 配置，默认 `rawdata`；embedded monorepo 设为 `bioinformatics`。
+> `{rawdata_dir}` 由 `workspace.yaml` 配置，默认 `rawdata`；embedded monorepo 设为 `bioinformatics`。  
+> 初始化时会创建 `{rawdata_dir}/paper/`，用于存放可下载的论文全文 PDF。
 
 ## 0. 工作区配置（每次收录前先执行）
 
@@ -60,6 +61,7 @@ python .cursor/skills/model-intake/kit/workspace.py show
 | ------------------------------ | --------------------------------- |
 | `workspace.root`               | 知识库根                          |
 | `workspace.rawdata_dir`        | 原始数据目录名（默认 `rawdata`）  |
+| `{rawdata_dir}/paper/`         | 论文全文 PDF（开放获取时自动保存） |
 | `workspace.graph_database_dir` | 图谱 ETL（默认 `Graph_Database`） |
 
 ```python
@@ -137,6 +139,7 @@ python kit/workspace.py graph-sync --set always
 - [ ] 0. 工作区（workspace.yaml 确认 / 读取）
 - [ ] 1. 查重与定位
 - [ ] 2. 信息调研
+- [ ] 2b. 论文 PDF（若有 paper_url / doi）
 - [ ] 3. 确定路径与 ID
 - [ ] 4. 撰写主条目 → 写入 workspace.root
 - [ ] 5. 关联实体同步
@@ -155,7 +158,7 @@ python .cursor/skills/model-intake/kit/search.py "<name>"
 
 ### 2–4. 调研 / 路径 / 撰写
 
-模板来源（**只在 Skill/kit 读取，写入 workspace.root**）：
+模板来源（**只在 Skill/kit 读取，写入 workspace.root**；章节结构对齐 `meta/*-RECORD-FULL.md`）：
 
 | 用途    | Skill 内模板                   |
 | ------- | ------------------------------ |
@@ -171,6 +174,45 @@ python .cursor/skills/model-intake/kit/search.py "<name>"
 - 等
 
 embedded 模式可额外参考 monorepo 的 `meta/*-TEMPLATE.md`。
+
+### 2b. 论文全文 PDF（调研后、撰写前）
+
+调研得到 `paper_url` 或 `paper_doi` 时，**尝试下载开放获取 PDF**（闭源/付费墙则跳过，不阻塞收录）：
+
+```bash
+# 确保 paper/ 存在（bootstrap 已创建；旧工作区可补建）
+python .cursor/skills/model-intake/kit/paper_fetch.py ensure-dir
+
+# 下载（stdout 为 JSON）
+python .cursor/skills/model-intake/kit/paper_fetch.py fetch \
+  --paper-url "https://doi.org/10.1101/..." \
+  --entity-id "<model_id 或 tool_id>"
+```
+
+**策略**（按序尝试，首个有效 PDF 即保存）：
+1. Unpaywall / Semantic Scholar 开放获取链接
+2. PubMed Central（经 Semantic Scholar / Europe PMC 解析 PMCID）
+3. arXiv / bioRxiv / medRxiv 直链（bioRxiv 可能受 Cloudflare 限制）
+4. DOI 落地页内嵌 PDF 链接
+
+**保存位置**：`{rawdata_dir}/paper/<doi-slug>.pdf`（无 DOI 时用 entity_id 命名）
+
+**写入条目**：主条目「基本信息」表增加（下载成功时）：
+
+| 字段 | 值 |
+|------|-----|
+| `paper_pdf` | `{rawdata_dir}/paper/10.xxxx-....pdf`（相对 workspace.root） |
+
+下载失败时在汇报中说明原因（如闭源），**不填** `paper_pdf`，收录照常进行。
+
+Dataset 的 `paper_doi` 若对应独立文献且尚未收录 PDF，可用同一命令 `--doi` 尝试下载（文件名按 DOI）。
+
+**批量补全**（对已收录 model/tools 一次性尝试下载并回写 `paper_pdf`）：
+
+```bash
+python .cursor/skills/model-intake/kit/paper_fetch.py backfill
+python .cursor/skills/model-intake/kit/paper_fetch.py backfill --dry-run
+```
 
 ### 5. 关联实体同步
 
@@ -199,6 +241,7 @@ make import-local   # Neo4j 可用时
 - [ ] 收录数据未写入 Skill 目录
 - [ ] workspace.yaml 路径与 graph_sync 偏好正确
 - [ ] 必填字段 / 实体同步
+- [ ] 论文 PDF：已下载并填 paper_pdf，或已说明无法获取
 - [ ] ETL：按偏好执行或已跳过并说明
 ```
 
@@ -207,5 +250,6 @@ make import-local   # Neo4j 可用时
 - [README.md](README.md) — Skill 总览
 - [workspace.yaml.example](workspace.yaml.example) — 配置示例
 - [kit/workspace.py](kit/workspace.py) — 路径管理 CLI
+- [kit/paper_fetch.py](kit/paper_fetch.py) — 论文 PDF 下载
 - [standalone.md](standalone.md) / [entity-sync.md](entity-sync.md) / [examples.md](examples.md)
 - 关系规则：embedded → `{root}/Graph_Database/doc/10-relationship-rules.md`；standalone → `{root}/.kbase/rules/`

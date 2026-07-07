@@ -11,7 +11,8 @@ Skill 内置工具包：**仅模板与代码**，不含用户收录数据。
 | `workspace.py` | 读/写 workspace.yaml，propose 默认路径，禁止写入 Skill 目录 |
 | `bootstrap.py` | 在用户 workspace.root 初始化目录结构 |
 | `search.py` | 按 workspace.yaml 检索实体 |
-| `templates/` | Model/Tool/Metric/Format/Dataset 模板 |
+| `paper_fetch.py` | 尝试下载论文 PDF 到 `{rawdata_dir}/paper/` |
+| `templates/` | Model/Tool/Metric/Format/Dataset 模板（结构对齐 `meta/*-RECORD-FULL.md`） |
 | `mappings/` | starter 别名（bootstrap 时复制到用户 Graph_Database/mappings/） |
 | `seeds/` | starter 示例词条（仅 bootstrap 时复制到用户 bioinformatics/） |
 | `graph/` | 便携 ETL + docker-compose |
@@ -32,6 +33,12 @@ python workspace.py init --root /path/to/foundation-models --mode embedded --wit
 python workspace.py show
 python workspace.py set --root /new/path
 python workspace.py init --from-workspace
+
+# 论文 PDF
+python paper_fetch.py ensure-dir
+python paper_fetch.py fetch --paper-url "https://doi.org/10.1101/..." --entity-id boltz-2
+python paper_fetch.py backfill              # 批量补全已收录 model/tools
+python paper_fetch.py backfill --dry-run    # 仅扫描
 ```
 
 ## 禁止事项

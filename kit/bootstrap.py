@@ -93,6 +93,12 @@ def init_kbase(
     manifest_path = target / ".kbase" / "manifest.json"
     if manifest_path.exists() and not force:
         existing = json.loads(manifest_path.read_text(encoding="utf-8"))
+        # 补建旧工作区缺失的 paper/ 目录
+        paper_dir = target / rawdata_dir / "paper"
+        paper_dir.mkdir(parents=True, exist_ok=True)
+        gitkeep = paper_dir / ".gitkeep"
+        if not gitkeep.exists():
+            gitkeep.write_text("", encoding="utf-8")
         print(f"已初始化: {target} (mode={existing.get('mode')})")
         print("使用 --force 覆盖非 manifest 缺失项")
         return existing
@@ -107,8 +113,13 @@ def init_kbase(
     for sub in MODEL_SUBCATS:
         d = bio / "model" / sub
         d.mkdir(parents=True, exist_ok=True)
-    for sub in ("metrics", "formats", "datasets", "tools"):
-        (bio / sub).mkdir(parents=True, exist_ok=True)
+    for sub in ("metrics", "formats", "datasets", "tools", "paper"):
+        d = bio / sub
+        d.mkdir(parents=True, exist_ok=True)
+        if sub == "paper":
+            gitkeep = d / ".gitkeep"
+            if not gitkeep.exists():
+                gitkeep.write_text("", encoding="utf-8")
 
     # 根 README / INDEX
     tpl_dir = KIT_ROOT / "templates"
@@ -193,6 +204,7 @@ def init_kbase(
         "kit_version": "1.0",
         "paths": {
             "templates": "meta/*.template.md",
+            "paper_pdfs": f"{rawdata_dir}/paper",
             "mappings": "Graph_Database/mappings" if graph_deployed else "kit/mappings",
             "rules": ".kbase/rules/relationship-rules.md",
             "search": ".kbase/search.py",

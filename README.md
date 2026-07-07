@@ -30,11 +30,14 @@
 |------|------|
 | `.cursor/skills/model-intake/` | 模板、kit 代码、workspace.yaml |
 | `workspace.root` | `{rawdata_dir}/`、INDEX.md、Graph_Database/ |
+| `{rawdata_dir}/paper/` | 论文全文 PDF |
 
 ## 常用命令
 
 ```bash
 python kit/workspace.py show
+python kit/paper_fetch.py ensure-dir
+python kit/paper_fetch.py fetch --paper-url "https://doi.org/..." --entity-id my-model
 python kit/workspace.py graph-sync --show
 python kit/workspace.py graph-sync --apply 从不   # 三选一后持久化
 python kit/search.py --entity model --list
