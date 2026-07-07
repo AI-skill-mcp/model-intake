@@ -42,8 +42,28 @@ metrics:
     aliases:
       - pKd预测
       - pKi预测
+      - pKd/pKi预测
       - pKd
       - pKi
+
+  kd:
+    label: Kd
+    unit: M
+    aliases:
+      - 解离常数
+      - 解离常数 Kd 预测
+      - dissociation constant
+      - Kd预测
+      - Kd
+
+  binding_affinity:
+    label: 结合亲和力
+    unit: nM / M
+    aliases:
+      - 结合亲和力预测
+      - 蛋白-蛋白复合物结合亲和力预测
+      - PPI结合亲和力
+      - 抗体亲和力预测
 
   ddG_bind:
     label: ΔΔG_bind

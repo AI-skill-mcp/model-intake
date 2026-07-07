@@ -1,6 +1,6 @@
 # 10 项目关系规则（权威）
 
-> 版本：v1.0 | 更新：2026-07-03  
+> 版本：v1.1 | 更新：2026-07-07  
 > 机器可读：`schema/edges.yaml`（存储语义）、`web/src/utils/edgeColors.ts`（可视化流向）
 
 本文档汇总 **ETL 存储方向**、**前端可视化箭头**、**实体百科校验**、**探索页筛选** 四类规则，作为项目内关系与数据治理的单一事实来源。
@@ -80,6 +80,7 @@ Component ──INTEGRATES──► PipelineModel
 |--------|--------|------|
 | `by_input_format` | `Model -[:ACCEPTS]-> FileType` | 选型页「输入格式 → 模型」 |
 | `by_metric` | `Model -[:MEASURES]-> Metric` | 选型页「指标 → 模型」 |
+| `by_metric_tool` | `Tool -[:MEASURES]-> Metric` | 选型页「仅工具预测的指标」（显示为 N 工具） |
 | `by_category` | `Model -[:BELONGS_TO]-> Category` | 领域筛选 |
 | `by_category_dataset` | `Model -[:TRAINED_ON]-> Dataset` + 领域 | 领域下数据集 |
 
@@ -109,8 +110,12 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 ### 4.3 Metric 白名单
 
 - `task_coverage` 条目经 `mappings/metrics.yaml` 别名映射为 `metric_id`
+- 解析：`etl/parser.py` → `parse_list_field()` 支持 `,` / `，` / `、` 分隔；推荐方括号列表 `[a, b]`
+- 表格值外层反引号自动剥离（`tool_id` 勿写 `` `prodigy` ``）
 - 未命中别名则忽略（不建 `MEASURES`）
-- 当前 21 个指标见 `bioinformatics/metrics/README.md`
+- Model 与 Tool 均建 `MEASURES` 边；仅 Tool 有边时指标入 `by_metric_tool` 而非 `by_metric`
+- `bioinformatics/metrics/*.md` 词条经 `entity_catalog` **始终合并入图**，但无 `MEASURES` 边时探索页默认不可见（搜索可强制聚焦）
+- 当前指标见 `bioinformatics/metrics/README.md`
 
 ### 4.4 Model 输入/输出校验
 
@@ -146,8 +151,22 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 
 - 点击节点：聚焦邻域 + 左侧 `EntityDrawer` 展示属性
 - 支持 Model / Dataset / Metric / FileType / Tool
+- **全局搜索**（Cmd+K）：跳转 `/explore?focus=<NodeType>:<id>`，自动扩展实体/领域筛选，`forcedVisibleRefs` 强制入图，`GraphCanvas` 将目标节点居中
 
-### 5.3 边样式
+### 5.3 探索图可见性
+
+探索子图种子节点规则（`buildExploreElements`）：
+
+| 实体 | 默认入图条件 |
+|------|----------------|
+| Model | 选中领域内的语料库模型 |
+| Dataset | 选中领域 + 实体类型含 Dataset |
+| Metric / FileType | 与领域内 Model 经选定关系边连通 |
+| Tool | 默认**不在**探索实体类型中；经 Model `REQUIRES` 扩展可见 |
+
+搜索聚焦时 bypass：目标 ref 写入 `forcedVisibleRefs`，即使无 Model 连通也会渲染该节点。
+
+### 5.4 边样式
 
 - 有向边：实线 + 三角箭头（颜色按 `EDGE_TYPE_COLORS`）
 - 无向边（`ALTERNATIVE_TO`）：虚线、无箭头
@@ -180,11 +199,13 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 | [schema/edges.yaml](../schema/edges.yaml) | 关系类型 Schema |
 | [mappings/metrics.yaml](../mappings/metrics.yaml) | 指标别名 |
 | [mappings/datasets.yaml](../mappings/datasets.yaml) | 数据集别名 |
-| [etl/graph_builder.py](../etl/graph_builder.py) | 建边逻辑 |
-| [etl/validate.py](../etl/validate.py) | 模型/工具 IO 校验 |
-| [web/src/utils/edgeColors.ts](../web/src/utils/edgeColors.ts) | 可视化流向 |
-| [meta/ENTITY-CATALOG-PLAN.md](../../meta/ENTITY-CATALOG-PLAN.md) | 实体目录规划 |
+| [etl/parser.py](../graph/etl/parser.py) | Markdown 字段 / 列表解析 |
+| [etl/export.py](../graph/etl/export.py) | 索引构建（含 by_metric_tool） |
+| [etl/graph_builder.py](../graph/etl/graph_builder.py) | 建边逻辑 |
+| [etl/validate.py](../graph/etl/validate.py) | 模型/工具 IO 校验 |
+| [web/src/utils/edgeColors.ts](../graph/web/src/utils/edgeColors.ts) | 可视化流向 |
+| [kit/graph/README.md](../graph/README.md) | 构建、ETL 时机、包结构 |
 
 ---
 
-*最后更新：2026-07-03*
+*最后更新：2026-07-07*

@@ -139,6 +139,8 @@ foundation-models/
 | 路径 | `bioinformatics/tools/<tool_id>.md` |
 | ID | `tool_id`，小写连字符 |
 | 必填 | `name`, `tool_type`, `input_format`, `output_format`, `task_coverage` |
+| task_coverage | 推荐 `[别名1, 别名2]`；须命中 `metrics.yaml`；Tool 建 `MEASURES` → `by_metric_tool` |
+| tool_id | 表格值写纯文本（`prodigy`），勿写 `` `prodigy` `` |
 | 关系 | `used_by_models`（被哪些 Model 依赖）、`REQUIRES`（ETL 自动建边） |
 | 训练数据 | 通常无；若依赖 benchmark 集，走 Dataset 同步流程 |
 
@@ -155,7 +157,7 @@ foundation-models/
 | 查重 | `bioinformatics/metrics/` + `Graph_Database/mappings/metrics.yaml` |
 | 来源 | `task_coverage`、论文 benchmark 表 |
 | 缺失时 | 按 `meta/METRIC-RECORD-TEMPLATE.md` 新建词条 + 更新 `metrics.yaml` aliases |
-| ETL 边 | Model/Tool → Metric：`MEASURES` |
+| ETL 边 | Model/Tool → Metric：`MEASURES`（Tool 边入 `by_metric_tool` 索引） |
 
 ### FileType（输入输出格式）
 
@@ -185,7 +187,7 @@ foundation-models/
 cd Graph_Database && make etl-local && make import-local
 ```
 
-检查 `etl_report.json`：`errors` 为空；`training_data` warning 已处理。
+检查 `etl_report.json`：`errors` 为空；`training_data` warning 已处理；新 Metric 在 `edges.jsonl` 有 `MEASURES` 边；`graph_export.json` 含 `by_metric_tool`。
 
 ## 禁止事项
 

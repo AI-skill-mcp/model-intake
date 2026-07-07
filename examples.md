@@ -198,3 +198,47 @@ RNAbpFlow 是 ... [100-300 字概述]
 
 **用户说「收录 ESM2」且已存在**：
 - 告知已收录路径，询问是否改为更新模式
+
+---
+
+## 示例 C：PRODIGY / Kd（Tool + 指标边 — 常见陷阱）
+
+### 背景
+
+`bioinformatics/metrics/kd.md` 已存在，但搜索「Kd」可选中、探索页无法聚焦、选型页无该指标。
+
+### 根因
+
+| 问题 | 后果 |
+|------|------|
+| `task_coverage` 用顿号且无方括号 | ETL 未拆分 → 无 `MEASURES` 边 |
+| `tool_id` 写成 `` `prodigy` `` | 节点 ID 污染 |
+| 仅 Tool 预测 Kd | `by_metric` 为空；旧逻辑不显示指标 |
+
+### 正确写法
+
+```markdown
+| `tool_id` | prodigy |
+| `task_coverage` | [蛋白-蛋白复合物结合亲和力预测, 解离常数 Kd 预测] |
+```
+
+`metrics.yaml` 须有：
+
+```yaml
+  kd:
+    label: Kd
+    aliases:
+      - 解离常数 Kd 预测
+      - Kd
+```
+
+### ETL 验收
+
+```bash
+rg 'MEASURES.*"id": "kd"' Graph_Database/data/edges.jsonl
+# → prodigy → kd
+
+python -c "import json; d=json.load(open('Graph_Database/data/graph_export.json')); \
+  print(d['indexes'].get('by_metric_tool',{}).get('kd'))"
+# → ['prodigy']
+```

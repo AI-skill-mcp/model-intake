@@ -235,6 +235,41 @@ make import-local   # Neo4j 可用时
 
 `run_etl=false` 或 `with_graph: false` 时跳过，汇报中注明。
 
+#### 7.1 embedded 模式：本地 Graph_Database ↔ Skill kit
+
+`Graph_Database/` 在 monorepo `.gitignore` 内，**技能包源码以 `kit/graph/` + `kit/mappings/` 为准**。
+
+| 方向 | 场景 | 命令 |
+|------|------|------|
+| **kit → 本地** | 首次部署 / 从 skill 恢复 | 见下「复制到本地」 |
+| **本地 → kit** | 在 `Graph_Database/` 做 ETL/Web 优化后 | 见 `.cursor/rules/graph-database-sync-to-skill.mdc` |
+
+复制到本地（运行 ETL / Web 前）：
+
+```bash
+SKILL=.cursor/skills/model-intake/kit
+cp -R $SKILL/graph/etl Graph_Database/
+cp -R $SKILL/mappings Graph_Database/
+cp $SKILL/graph/Makefile Graph_Database/
+cp $SKILL/graph/docker-compose.yml Graph_Database/
+# web 若 kit 内已有：cp -R $SKILL/graph/web Graph_Database/
+cp -R $SKILL/graph/web Graph_Database/
+```
+
+**铁律**：本地优化未回写 `kit/` 则视为未完成。
+
+#### 7.2 ETL 后数据一致性检查
+
+| 检查项 | 命令 / 期望 |
+|--------|-------------|
+| 新 Metric 有边 | `rg 'MEASURES.*\"id\": \"<metric_id>\"' Graph_Database/data/edges.jsonl` |
+| Tool task_coverage 映射 | `python -c "from etl.metrics import ..."`（见 entity-sync.md §A.1b） |
+| 孤立指标 | metrics 词条存在但无边 → 补 aliases 或 task_coverage |
+| 索引 | `graph_export.json` 含 `by_metric`、`by_metric_tool` |
+| Web 数据 | `cd Graph_Database/web && npm run build`（复制 graph_export 到 public） |
+
+关系与索引细则：`kit/rules/relationship-rules.md`；构建与运行：`kit/graph/README.md`。
+
 ### 8. 验收
 
 ```
@@ -252,4 +287,5 @@ make import-local   # Neo4j 可用时
 - [kit/workspace.py](kit/workspace.py) — 路径管理 CLI
 - [kit/paper_fetch.py](kit/paper_fetch.py) — 论文 PDF 下载
 - [standalone.md](standalone.md) / [entity-sync.md](entity-sync.md) / [examples.md](examples.md)
-- 关系规则：embedded → `{root}/Graph_Database/doc/10-relationship-rules.md`；standalone → `{root}/.kbase/rules/`
+- 图谱构建与数据规则：`kit/graph/README.md`、`kit/rules/relationship-rules.md`
+- 本地优化回写 skill：`.cursor/rules/graph-database-sync-to-skill.mdc`（仅同步约束，非业务规则）

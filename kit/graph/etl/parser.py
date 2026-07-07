@@ -28,17 +28,26 @@ def file_content_hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def _strip_field_value(value: str) -> str:
+    """去除表格值外层包裹的反引号（如 `prodigy` → prodigy）。"""
+    val = value.strip()
+    if len(val) >= 2 and val.startswith("`") and val.endswith("`") and val.count("`") == 2:
+        return val[1:-1].strip()
+    return val
+
+
 def parse_markdown_fields(content: str) -> dict[str, str]:
     """
     解析 Markdown 中所有 `字段` | 值 表格行。
 
     同一字段多次出现时保留最后一次（通常基本信息表优先）。
+    值若被单反引号包裹则自动剥离（避免 tool_id 等写入图谱时带 `` ` ``）。
     """
     fields: dict[str, str] = {}
     for line in content.splitlines():
         m = _FIELD_ROW.match(line.strip())
         if m:
-            key, val = m.group(1).strip(), m.group(2).strip()
+            key, val = m.group(1).strip(), _strip_field_value(m.group(2))
             fields[key] = val
     return fields
 
@@ -73,7 +82,11 @@ def extract_summary(content: str, max_length: int = 500) -> str:
 
 
 def parse_list_field(value: str) -> list[str]:
-    """解析 [a, b, c] 或逗号分隔列表。"""
+    """
+    解析 [a, b, c] 或逗号/顿号分隔列表。
+
+    支持分隔符：英文逗号 `,`、中文逗号 `，`、顿号 `、`。
+    """
     if not value or value in ("—", "-", "null", "None"):
         return []
     m = _LIST_IN_BRACKETS.search(value)
@@ -81,8 +94,8 @@ def parse_list_field(value: str) -> list[str]:
         inner = m.group(1)
     else:
         inner = value
-    parts = re.split(r"[,，]", inner)
-    return [p.strip().strip("'\"") for p in parts if p.strip()]
+    parts = re.split(r"[,，、]", inner)
+    return [_strip_field_value(p.strip().strip("'\"")) for p in parts if p.strip()]
 
 
 def is_placeholder_url(value: str) -> bool:

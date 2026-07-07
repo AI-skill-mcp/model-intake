@@ -53,6 +53,15 @@ python kit/search.py --entity model --list
 
 未明确是否构建图谱时，Agent 按上表决策；详见 SKILL.md §0.5。
 
+## 图数据库（技能包内）
+
+| 文档 | 内容 |
+|------|------|
+| [kit/graph/README.md](./kit/graph/README.md) | 构建、ETL 时机、目录结构 |
+| [kit/rules/relationship-rules.md](./kit/rules/relationship-rules.md) | 关系、索引、探索页规则 |
+
+embedded 模式下在 `Graph_Database/` 本地优化后，须回写 `kit/`（见 `.cursor/rules/graph-database-sync-to-skill.mdc`）。
+
 ---
 
-*最后更新：2026-07-03*
+*最后更新：2026-07-07*

@@ -6,6 +6,8 @@
 > embedded monorepo：`{rawdata_dir}=bioinformatics`、`{graph_database_dir}=Graph_Database`；
 > standalone：`{rawdata_dir}=rawdata`、`{graph_database_dir}=Graph_Database`。
 > 下文为简洁起见写 `bioinformatics/` 与 `Graph_Database/`，**实操时按 workspace.yaml 替换**。
+>
+> 图谱规则与构建：见 `kit/graph/README.md`、`kit/rules/relationship-rules.md`。
 
 ```
 关联实体提取:
@@ -25,9 +27,33 @@
 |------|------|
 | 模型 `task_coverage` | 每条任务 → 对应预测指标 |
 | 论文 benchmark 表 | Table X 中的 metric 名称 |
-| Tool `task_coverage` | 同上 |
+| Tool `task_coverage` | 同上；ETL 建 `Tool -[:MEASURES]-> Metric` |
 
 **原则**：只收录**可量化、可复现**的预测指标；纯描述性任务（如「结构预测」）映射到已有标准指标（如 `tm-score`、`plddt`），无法映射则记录为待扩展项。
+
+### A.1b task_coverage 书写规范（ETL 必遵）
+
+| 规则 | 说明 |
+|------|------|
+| **推荐格式** | 方括号列表：`[pKd预测, 结合亲和力预测]` |
+| **分隔符** | 英文逗号 `,`、中文逗号 `，`、顿号 `、`（ETL `parse_list_field` 均支持） |
+| **别名匹配** | 每一项经 `{graph_database_dir}/mappings/metrics.yaml` → `aliases` 映射为 `metric_id`；未命中则**静默忽略** |
+| **表格值** | `tool_id` / `model_id` 等**不要**在值外加反引号（`` `prodigy` `` 会污染节点 ID） |
+| **反例** | `蛋白-蛋白结合、解离常数 Kd 预测` 若未用方括号且仅用顿号——修复前整句无法拆分；现虽已支持顿号，仍推荐方括号列表 |
+
+**收录后验证**（新指标 / Tool task_coverage）：
+
+```bash
+cd "{graph_database_dir}"
+rg '"id": "<metric_id>"' data/edges.jsonl          # 应有 MEASURES 边
+python -c "
+from etl.metrics import load_metrics, extract_metrics_from_task_coverage
+from pathlib import Path
+_, aliases = load_metrics(Path('mappings'))
+print(extract_metrics_from_task_coverage('[解离常数 Kd 预测]', aliases))
+# 期望: ['kd']
+"
+```
 
 ### A.2 查重与映射
 
@@ -229,15 +255,26 @@ make import-local   # 若 Neo4j 可用
 | `errors` | 空 |
 | `warnings` 中 training_data | 新收录模型的 training_data 均已映射 |
 | 节点计数 | Dataset / Metric / FileType 增量符合预期 |
-| 边 | Model→Dataset `TRAINED_ON`、Model→Metric `MEASURES`、Model→FileType `ACCEPTS`/`PRODUCES` |
+| 边 | Model→Dataset `TRAINED_ON`、Model/Tool→Metric `MEASURES`、Model/Tool→FileType `ACCEPTS`/`PRODUCES` |
+| **孤立 Metric** | `bioinformatics/metrics/*.md` 有词条但 `edges.jsonl` 无 `MEASURES → <id>` → 检查 task_coverage 别名或 metrics.yaml |
+| **索引** | `graph_export.json` → `indexes.by_metric`（模型）、`indexes.by_metric_tool`（工具） |
+
+### D.1b 指标在 Web 端的可见性
+
+| 场景 | 行为 |
+|------|------|
+| 选型页指标列表 | `by_metric` 有模型 **或** `by_metric_tool` 有工具才显示；仅工具时计数为「N 工具」 |
+| 探索页搜索聚焦 | 目标节点即使未与当前领域 Model 连通，也会通过 `forcedVisibleRefs` 强制入图并居中 |
+| Metric 百科词条 | `entity_catalog` 合并后节点**始终存在**于 `graph_export.json`，但无 `MEASURES` 边则默认不在探索子图 |
 
 ### D.2 Tool 收录差异
 
 | 项 | Model | Tool |
 |----|-------|------|
 | 路径 | `bioinformatics/model/<cat>/` | `bioinformatics/tools/` |
-| ID 字段 | `model_id` | `tool_id` |
+| ID 字段 | `model_id` | `tool_id`（表格值勿加反引号） |
 | 训练数据 | `TRAINED_ON` | 通常无；若有 benchmark 数据写 `requires_datasets` |
+| 指标边 | `Model -[:MEASURES]-> Metric` | `Tool -[:MEASURES]-> Metric`（入 `by_metric_tool`） |
 | 关系 | — | `REQUIRES`（依赖其他 Tool）、`used_by_models` |
 
 Tool 同样须完成 **B（I/O 格式）** 与 **A（task_coverage 指标）**；数据集仅在 Tool 明确依赖评测集时收录。

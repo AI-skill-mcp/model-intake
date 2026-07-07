@@ -15,7 +15,9 @@ Skill 内置工具包：**仅模板与代码**，不含用户收录数据。
 | `templates/` | Model/Tool/Metric/Format/Dataset 模板（结构对齐 `meta/*-RECORD-FULL.md`） |
 | `mappings/` | starter 别名（bootstrap 时复制到用户 Graph_Database/mappings/） |
 | `seeds/` | starter 示例词条（仅 bootstrap 时复制到用户 bioinformatics/） |
-| `graph/` | 便携 ETL + docker-compose |
+| `graph/` | 便携 ETL + Web + docker-compose（**完整图谱技能包**） |
+| `rules/relationship-rules.md` | 关系、索引、探索页、ETL 数据规则（权威长文） |
+| `graph/README.md` | 构建命令、ETL 时机、数据规则摘要 |
 
 ## 工作区 CLI
 
@@ -56,4 +58,4 @@ python bootstrap.py ~/kbase --with-graph
 
 ---
 
-*kit version: 1.1*
+*kit version: 1.3 | 2026-07-07 — skills 为图谱唯一事实来源；rule 仅约束本地→kit 回写*

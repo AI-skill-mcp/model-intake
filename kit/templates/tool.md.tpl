@@ -13,7 +13,7 @@
 
 | 字段 | 值 |
 |------|-----|
-| `tool_id` | `<小写连字符>` |
+| `tool_id` | <小写连字符>（**勿**在表格值外加反引号） |
 | `name` | |
 | `alias` | （可选） |
 | `tool_type` | predictor / annotator / converter / pipeline |
@@ -40,7 +40,7 @@
 | `input_format` | PDB / FASTA / …（须可被 infer_file_types 识别） |
 | `output_format` | JSON / PDB / CSV / … |
 | `input_constraints` | （可选） |
-| `task_coverage` | [ΔΔGbind预测, …] |
+| `task_coverage` | [ΔΔGbind预测, 解离常数 Kd 预测, …]（**推荐方括号列表**；分隔符 `,` / `，` / `、` 均可；每项须命中 metrics.yaml aliases） |
 
 ## 关系
 
@@ -84,6 +84,11 @@
 **必填**：tool_id, name, tool_type, organization, input_format, output_format, task_coverage, license
 
 **推荐**：paper_url, homepage, method, used_by_models / requires_tools
+
+**ETL 注意**：
+- `tool_id` 表格值写 `prodigy`，不要写 `` `prodigy` ``
+- `task_coverage` 中可量化指标须与 `{graph_database_dir}/mappings/metrics.yaml` aliases 一致，否则不建 `MEASURES` 边
+- Tool → Metric 边写入 `by_metric_tool` 索引；选型页仅模型时显示「N 工具」
 
 **可选**：paper_pdf, github, key_reference
 
