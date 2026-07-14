@@ -195,12 +195,63 @@ export function getModelsByInput(graph: GraphExport, formatId: string): ModelNod
     .filter((m): m is ModelNode => !!m);
 }
 
-export function getModelsByMetric(graph: GraphExport, metricId: string): ModelNode[] {
+/** 物理量相近、选型时应一并展示的指标（如 Kd ↔ pKd） */
+const RELATED_METRICS: Record<string, string[]> = {
+  kd: ["pkd"],
+  pkd: ["kd"],
+  ki: ["pkd"],
+  binding_affinity: ["kd", "pkd", "ddG_bind"],
+};
+
+/**
+ * 按指标取模型。默认合并 RELATED_METRICS 中的近邻指标，避免筛 Kd 时漏掉只挂了 pKd 的模型。
+ * @param includeRelated 是否合并近邻指标（选型页默认 true）
+ */
+export function getModelsByMetric(
+  graph: GraphExport,
+  metricId: string,
+  includeRelated = true
+): ModelNode[] {
   const index = graph.indexes.by_metric ?? {};
-  const ids = index[metricId] ?? [];
-  return ids
-    .map((id) => getModelById(graph, id))
-    .filter((m): m is ModelNode => !!m);
+  const metricIds = includeRelated
+    ? [metricId, ...(RELATED_METRICS[metricId] ?? [])]
+    : [metricId];
+  const seen = new Set<string>();
+  const out: ModelNode[] = [];
+  for (const mid of metricIds) {
+    for (const id of index[mid] ?? []) {
+      if (seen.has(id)) continue;
+      const m = getModelById(graph, id);
+      if (m) {
+        seen.add(id);
+        out.push(m);
+      }
+    }
+  }
+  return out;
+}
+
+/** 按指标取工具（Tool -[:MEASURES]-> Metric），含近邻指标 */
+export function getToolsByMetric(
+  graph: GraphExport,
+  metricId: string,
+  includeRelated = true
+): { id: string; name: string }[] {
+  const index = graph.indexes.by_metric_tool ?? {};
+  const metricIds = includeRelated
+    ? [metricId, ...(RELATED_METRICS[metricId] ?? [])]
+    : [metricId];
+  const seen = new Set<string>();
+  const out: { id: string; name: string }[] = [];
+  for (const mid of metricIds) {
+    for (const id of index[mid] ?? []) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const node = graph.nodes.find((n) => n.node_type === "Tool" && n.tool_id === id);
+      out.push({ id, name: node?.name ?? id });
+    }
+  }
+  return out;
 }
 
 /** @deprecated */

@@ -7,6 +7,7 @@ import {
   getModelsByMetric,
   getModelsByCategory,
   getModelCategoryId,
+  getToolsByMetric,
   listInputFormats,
   listMetrics,
   listCategories,
@@ -32,7 +33,7 @@ export function SelectPage({ graph }: Props) {
   const [showAllArch, setShowAllArch] = useState(true);
   const [showAllOrg, setShowAllOrg] = useState(true);
 
-  // 候选模型：先按输入格式，再按领域，再按指标
+  // 候选模型：先按输入格式，再按领域，再按指标（指标含 Kd↔pKd 近邻合并）
   const candidates = useMemo(() => {
     if (!formatId) return [];
     let models = getModelsByInput(graph, formatId);
@@ -43,11 +44,17 @@ export function SelectPage({ graph }: Props) {
     }
 
     if (metricId) {
-      const metricModels = new Set(getModelsByMetric(graph, metricId).map((m) => m.model_id));
+      const metricModels = new Set(getModelsByMetric(graph, metricId, true).map((m) => m.model_id));
       models = models.filter((m) => metricModels.has(m.model_id));
     }
     return models;
   }, [graph, formatId, categoryId, metricId]);
+
+  /** 当前指标下的工具（不依赖输入格式；选型页补充展示） */
+  const metricTools = useMemo(() => {
+    if (!metricId) return [];
+    return getToolsByMetric(graph, metricId, true);
+  }, [graph, metricId]);
 
   // 结果页的侧边筛选统计
   const { archTypes, orgNames, filteredCandidates } = useMemo(() => {
@@ -269,7 +276,25 @@ export function SelectPage({ graph }: Props) {
                 ))}
               </div>
               {filteredCandidates.length === 0 && (
-                <p className="empty">无匹配模型，请放宽筛选条件。</p>
+                <p className="empty">
+                  无匹配模型。若选了 Kd，可改试输入格式 <strong>PDB</strong>（结构基）或
+                  <strong>FASTA</strong>（序列基 pKd 模型）；亦可跳过「研究领域」。
+                </p>
+              )}
+              {metricId && metricTools.length > 0 && (
+                <div className="metric-tools" style={{ marginTop: "1.25rem" }}>
+                  <h3>相关工具（{metricTools.length}）</h3>
+                  <p className="hint">
+                    工具不经「输入格式」过滤；PRODIGY / CSM-AB 等会直接预测或换算 Kd。
+                  </p>
+                  <ul>
+                    {metricTools.map((t) => (
+                      <li key={t.id}>
+                        <code>{t.id}</code> — {t.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </div>

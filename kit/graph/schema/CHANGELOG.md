@@ -51,3 +51,10 @@
 - Python ETL 流水线（`etl.run`）
 - Neo4j 导入（`etl.import_neo4j`）
 - Docker Compose + Makefile 容器化基座
+
+## 2026-07-14 — Kd 选型筛选修复
+
+- `etl/export.py`：补齐 `by_metric_tool` 索引（Tool→Metric）
+- 模型/工具 `task_coverage`：DLP/AbAffinity/MVSF-AB/CSM-AB 增补「解离常数 Kd 预测」
+- Web：`getModelsByMetric` 合并 Kd↔pKd；选型结果展示相关工具；空结果提示输入格式
+

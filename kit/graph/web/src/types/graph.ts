@@ -75,6 +75,8 @@ export interface GraphExport {
   indexes: {
     by_input_format: Record<string, string[]>;
     by_metric: Record<string, string[]>;
+    /** Tool -[:MEASURES]-> Metric */
+    by_metric_tool?: Record<string, string[]>;
     /** @deprecated 使用 by_metric */
     by_task?: Record<string, string[]>;
     by_category: Record<string, string[]>;

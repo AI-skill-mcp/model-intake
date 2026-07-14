@@ -1,31 +1,14 @@
-# 性能指标白名单（starter seed，收录时可扩展）
-# task_coverage 条目经 aliases 匹配后映射为 metric_id
+# 明确可量化的预测指标（功能筛选白名单）
+# task_coverage 中的条目经别名匹配后映射为 metric_id；未命中则忽略
 
 metrics:
-  plddt:
-    label: pLDDT
-    unit: 0-100
-    aliases:
-      - pLDDT
-      - pLDDT置信度
-      - 结构置信度
-      - 置信度评估
-
-  tm_score:
-    label: TM-score
-    unit: dimensionless
-    aliases:
-      - TM-score
-      - TM score
-      - TMscore
-      - 结构相似度
-
   kcat:
     label: kcat
     unit: s⁻¹
     aliases:
       - kcat预测
       - kcat
+      - 催化常数kcat
       - 催化常数
 
   km:
@@ -34,7 +17,15 @@ metrics:
     aliases:
       - Km预测
       - Km
+      - 米氏常数Km
       - 米氏常数
+
+  ki:
+    label: Ki
+    unit: M
+    aliases:
+      - Ki预测
+      - Ki
 
   pkd:
     label: pKd / pKi
@@ -45,6 +36,48 @@ metrics:
       - pKd/pKi预测
       - pKd
       - pKi
+      - pkd
+      - pki
+      - pKD
+      - pKD回归
+
+  ddG_bind:
+    label: ΔΔG_bind
+    unit: kcal/mol
+    aliases:
+      - ΔΔGbind预测
+      - ΔΔG_bind回归
+      - ΔΔGbind
+      - ΔΔG预测
+      - ΔΔG值
+      - ΔG值
+      - ΔG_bind回归
+      - ΔG_bind
+      - BFE预测
+      - ddG_bind
+      - 结合自由能变化
+      - 结合亲和力变化值
+
+  binding_affinity:
+    label: 结合亲和力
+    unit: nM / M
+    aliases:
+      - PPI结合亲和力
+      - 蛋白-蛋白复合物结合亲和力预测
+      - 抗体-抗原亲和力预测
+      - 结合亲和力回归
+      - 抗体亲和力预测
+      - 抗体亲和力
+      - 亲和力预测
+      - sdAb亲和力
+      - 抗体-抗原
+      - 富集分数预测
+      - 亲和力优化
+      - 亲和力成熟
+      - 适应度评分
+      - 相互作用概率
+      - pKD预测
+      - 预测亲和力排序
 
   kd:
     label: Kd
@@ -55,35 +88,123 @@ metrics:
       - dissociation constant
       - Kd预测
       - Kd
+      - log10(KD)
+      - log10(Kd)
+      - KD预测
 
-  binding_affinity:
-    label: 结合亲和力
-    unit: nM / M
+  tm:
+    label: ΔTm
+    unit: °C
     aliases:
-      - 结合亲和力预测
-      - 蛋白-蛋白复合物结合亲和力预测
-      - PPI结合亲和力
-      - 抗体亲和力预测
+      - ΔTm预测
+      - 热稳定性
 
-  ddG_bind:
-    label: ΔΔG_bind
-    unit: kcal/mol
+  rsa:
+    label: RSA
+    unit: fraction
     aliases:
-      - ΔΔGbind预测
-      - ΔΔG预测
-      - 结合自由能变化
+      - RSA预测
+      - 相对溶剂可及性
+
+  esp:
+    label: ESP
+    aliases:
+      - ESP预测
+
+  ic50_ec50:
+    label: IC50 / EC50
+    unit: nM
+    aliases:
+      - IC50
+      - EC50
+      - EC50降低
+
+  plddt:
+    label: pLDDT
+    unit: 0-100
+    aliases:
+      - pLDDT置信度
+      - pLDDT
+      - 置信度评估
+      - 结构置信度
 
   embedding:
-    label: 序列嵌入
-    unit: vector
+    label: 序列表征
     aliases:
-      - 序列嵌入
-      - embedding
-      - 蛋白嵌入
+      - 序列表征
+      - 嵌入向量
+      - 残基级嵌入
+      - 细胞嵌入
+      - 模态特定嵌入
 
   solubility:
     label: 溶解度
-    unit: logS
     aliases:
+      - 可溶性预测
       - 溶解度预测
-      - 水溶性预测
+      - 蛋白质可溶性
+      - 可溶/不可溶
+
+  localization:
+    label: 亚细胞定位
+    aliases:
+      - 亚细胞定位
+      - 蛋白质定位预测
+      - 多标签定位预测
+
+  go_annotation:
+    label: GO 功能注释
+    aliases:
+      - GO预测
+      - GO术语
+      - 功能注释
+      - GO功能注释
+
+  ec_number:
+    label: EC 编号
+    aliases:
+      - EC编号预测
+      - EC编号
+      - 酶功能分类
+
+  docking_score:
+    label: 对接打分
+    aliases:
+      - 分子对接
+      - 蛋白-蛋白对接
+      - 蛋白-核酸对接
+      - 虚拟筛选
+      - 对接姿态打分
+      - 蛋白-配体对接
+      - DockQ预测
+      - DockQ
+      - predicted_dockq
+
+  binding_site:
+    label: 结合位点
+    aliases:
+      - 结合位点预测
+      - 可药结合位点
+      - 残基结合位点
+      - PPI位点预测
+      - 残基层级PPI位点预测
+
+  ptm_site:
+    label: PTM 位点
+    aliases:
+      - PTM位点
+      - 修饰位点
+      - 残基PTM概率
+
+  contact_map:
+    label: 残基接触
+    aliases:
+      - 接触图
+      - 残基对接触
+      - 残基对接触排名
+
+  expression_level:
+    label: 基因表达
+    aliases:
+      - 基因表达预测
+      - 表达量

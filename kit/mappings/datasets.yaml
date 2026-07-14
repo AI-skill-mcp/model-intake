@@ -1,12 +1,56 @@
-# 训练数据集别名（starter seed）
+# 可验证数据集白名单：training_data 原文 → dataset_id
 # 仅映射至 bioinformatics/datasets/ 中具备 url + paper_doi 的词条
 
 training_text_aliases:
-  "PDB (蛋白质数据库)": pdb
+  # 酶动力学
+  "CatPred-DB (BRENDA, SABIO-RK等整合)": catpred-db
+  "公开酶动力学数据库": brenda
+  "KinHub-27k (27,176条数据)": kinhub-27k
+
+  # 蛋白结构 / 结合
   "PDB (实验结构) + 多种序列数据库": pdb
+  "PDB (蛋白质数据库)": pdb
   "PDB + 多种生物分子复合物数据": pdb
+  "PDB实验结构 (截止2021-09-30), AlphaFold2, OpenFold3预测结构": pdb
   "PDBbind": pdbbind
   "PDBBind": pdbbind
+  "PDBBind v2016": pdbbind
+  "PDBBind v2016/v2019": pdbbind
+  "PDBbind v2020 PPI 子集（1,858 样本）": pdbbind
+  "PDBbind v2020 PPI 精选子集（~1700+ 条目）": pdbbind
+  "CATH（预训练，无标注）": cath
+  "SKEMPI v2（监督微调）": skempi-v2
+  "SKEMPI v2": skempi-v2
+
+  # 蛋白语言模型
   "UniRef50 / UniRef90": uniref50-uniref90
+  "ESM-2预训练权重 + 结构数据微调": uniref50-uniref90
+  "ESM Atlas 覆盖 **68 亿**蛋白 + **10 亿+** 预测结构；ESMC 6B 在\"an order of magnitude larger than ESM-2\"规模的 self-supervised 训练（细节以预印本 PDF 为准）": esm-metagenomic-atlas
+
+  # 抗体 / 纳米抗体
+  "抗体序列数据库 (OAS等)": oas
+  "未公开（推测 SAbDab / 内部湿实验闭环数据）": sabdab
+  "SAbDab 带实验 KD 标注的抗体–抗原结构": sabdab
+  "INDI ~1100万 sdAb 序列（MLM）": indi
+  "AB-Bind / sdAb-DB（亲和力）": ab-bind
+  "AB-Bind": ab-bind
+  "sdAb-DB": sdab-db
+
+
+  # RNA
+  "~23 million 无标签RNA序列": rnacentral
   "~2300万条RNA序列": rnacentral
   "~2300万条RNA序列 (来自RNAcentral)": rnacentral
+  "~2370万条RNA序列": rnacentral
+  "RNA3DB (2024-04-26 release)": rna3db
+  "RNA3DB train-test split (2024-04-26 release)": rna3db
+  "bpRNA-1m": bprna
+  "bpRNA-1m 交叉蒸馏增强": bprna
+
+  # 基因组 / 单细胞
+  "3,202个人类基因组 + 850个多样化物种": ncbi-refseq
+  "3,202个人类基因组 + 850个多样化物种的基因组数据": ncbi-refseq
+  "超过1000万个单细胞 (scRNA-seq)": cellxgene-census
+
+  # 稳定性
+  "Megascale数据集 (Nature 2023)": megascale
