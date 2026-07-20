@@ -1,6 +1,6 @@
 # 10 项目关系规则（权威）
 
-> 版本：v1.1 | 更新：2026-07-07  
+> 版本：v1.0 | 更新：2026-07-03  
 > 机器可读：`schema/edges.yaml`（存储语义）、`web/src/utils/edgeColors.ts`（可视化流向）
 
 本文档汇总 **ETL 存储方向**、**前端可视化箭头**、**实体百科校验**、**探索页筛选** 四类规则，作为项目内关系与数据治理的单一事实来源。
@@ -36,6 +36,8 @@
 | `PRODUCES` | Model/Tool → FileType | `output_format` | 主体产出该格式 |
 | `MEASURES` | Model/Tool → Metric | `task_coverage` | 主体可预测该指标 |
 | `TRAINED_ON` | Model → Dataset | `training_data` | 主体在该数据上训练 |
+| `LABELS` | Dataset → Metric | `label_metrics` | 数据集标注/标签对应的量化指标 |
+| `PROVIDES` | Dataset → FileType | `file_formats` | 数据集分发的文件格式 |
 | `BELONGS_TO` | Model → Category | `category` | 模型所属领域 |
 | `BASED_ON` | Model → Model | `pretrained_model` / `parent_model` | 衍生模型声明的基座 |
 | `INTEGRATES` | Model → Model/Tool | `integrated_with` | 集成方 → 被集成组件 |
@@ -51,6 +53,8 @@
 |------|------------|----------|
 | `ACCEPTS` | **FileType → Model/Tool** | 输入数据流入 |
 | `TRAINED_ON` | **Dataset → Model** | 训练语料流入 |
+| `PROVIDES` | **FileType → Dataset** | 按格式发现数据资源 |
+| `LABELS` | Dataset → Metric | 数据集标签覆盖的指标 |
 | `BASED_ON` | **基座 Model → 衍生 Model** | 架构/权重继承 |
 | `INTEGRATES` | **被集成 Model/Tool → 集成方 Model** | 组件接入管线 |
 | `REQUIRES` | **Tool → Model** | 工具支撑执行 |
@@ -63,6 +67,8 @@
 ### 2.3 典型执行链路
 
 ```
+Dataset ──LABELS──► Metric
+Dataset ──PROVIDES──► FileType
 Dataset ──TRAINED_ON──► Model ──PRODUCES──► FileType
 FileType ──ACCEPTS──► Model ──MEASURES──► Metric
 BaseModel ──BASED_ON──► DerivedModel
@@ -80,7 +86,8 @@ Component ──INTEGRATES──► PipelineModel
 |--------|--------|------|
 | `by_input_format` | `Model -[:ACCEPTS]-> FileType` | 选型页「输入格式 → 模型」 |
 | `by_metric` | `Model -[:MEASURES]-> Metric` | 选型页「指标 → 模型」 |
-| `by_metric_tool` | `Tool -[:MEASURES]-> Metric` | 选型页「仅工具预测的指标」（显示为 N 工具） |
+| `by_metric_dataset` | `Dataset -[:LABELS]-> Metric` | 「指标 → 数据集」 |
+| `by_format_dataset` | `Dataset -[:PROVIDES]-> FileType` | 「格式 → 数据集」 |
 | `by_category` | `Model -[:BELONGS_TO]-> Category` | 领域筛选 |
 | `by_category_dataset` | `Model -[:TRAINED_ON]-> Dataset` + 领域 | 领域下数据集 |
 
@@ -106,16 +113,15 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 - 模型 `training_data` 仅当映射到白名单数据集时建 `TRAINED_ON`
 - 无独立公开发布的复述（如「2300 万 RNA 序列」）**不建节点**，映射到权威库（如 `rnacentral`）
 - 配置：`mappings/datasets.yaml` → `training_text_aliases`
+- **图谱建边字段**（写入 `datasets/<id>.md` 基本信息表）：
+  - `label_metrics`：方括号列表，别名须命中 `metrics.yaml`（建 `LABELS`）
+  - `file_formats`：格式关键词文本，经 `infer_file_types`（建 `PROVIDES`）
 
 ### 4.3 Metric 白名单
 
 - `task_coverage` 条目经 `mappings/metrics.yaml` 别名映射为 `metric_id`
-- 解析：`etl/parser.py` → `parse_list_field()` 支持 `,` / `，` / `、` 分隔；推荐方括号列表 `[a, b]`
-- 表格值外层反引号自动剥离（`tool_id` 勿写 `` `prodigy` ``）
 - 未命中别名则忽略（不建 `MEASURES`）
-- Model 与 Tool 均建 `MEASURES` 边；仅 Tool 有边时指标入 `by_metric_tool` 而非 `by_metric`
-- `bioinformatics/metrics/*.md` 词条经 `entity_catalog` **始终合并入图**，但无 `MEASURES` 边时探索页默认不可见（搜索可强制聚焦）
-- 当前指标见 `bioinformatics/metrics/README.md`
+- 当前 21 个指标见 `bioinformatics/metrics/README.md`
 
 ### 4.4 Model 输入/输出校验
 
@@ -151,22 +157,8 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 
 - 点击节点：聚焦邻域 + 左侧 `EntityDrawer` 展示属性
 - 支持 Model / Dataset / Metric / FileType / Tool
-- **全局搜索**（Cmd+K）：跳转 `/explore?focus=<NodeType>:<id>`，自动扩展实体/领域筛选，`forcedVisibleRefs` 强制入图，`GraphCanvas` 将目标节点居中
 
-### 5.3 探索图可见性
-
-探索子图种子节点规则（`buildExploreElements`）：
-
-| 实体 | 默认入图条件 |
-|------|----------------|
-| Model | 选中领域内的语料库模型 |
-| Dataset | 选中领域 + 实体类型含 Dataset |
-| Metric / FileType | 与领域内 Model 经选定关系边连通 |
-| Tool | 默认**不在**探索实体类型中；经 Model `REQUIRES` 扩展可见 |
-
-搜索聚焦时 bypass：目标 ref 写入 `forcedVisibleRefs`，即使无 Model 连通也会渲染该节点。
-
-### 5.4 边样式
+### 5.3 边样式
 
 - 有向边：实线 + 三角箭头（颜色按 `EDGE_TYPE_COLORS`）
 - 无向边（`ALTERNATIVE_TO`）：虚线、无箭头
@@ -199,13 +191,11 @@ Cypher 查询编写时使用 **存储方向**；前端展示调用 `orientEdgeFo
 | [schema/edges.yaml](../schema/edges.yaml) | 关系类型 Schema |
 | [mappings/metrics.yaml](../mappings/metrics.yaml) | 指标别名 |
 | [mappings/datasets.yaml](../mappings/datasets.yaml) | 数据集别名 |
-| [etl/parser.py](../graph/etl/parser.py) | Markdown 字段 / 列表解析 |
-| [etl/export.py](../graph/etl/export.py) | 索引构建（含 by_metric_tool） |
-| [etl/graph_builder.py](../graph/etl/graph_builder.py) | 建边逻辑 |
-| [etl/validate.py](../graph/etl/validate.py) | 模型/工具 IO 校验 |
-| [web/src/utils/edgeColors.ts](../graph/web/src/utils/edgeColors.ts) | 可视化流向 |
-| [kit/graph/README.md](../graph/README.md) | 构建、ETL 时机、包结构 |
+| [etl/graph_builder.py](../etl/graph_builder.py) | 建边逻辑 |
+| [etl/validate.py](../etl/validate.py) | 模型/工具 IO 校验 |
+| [web/src/utils/edgeColors.ts](../web/src/utils/edgeColors.ts) | 可视化流向 |
+| [meta/ENTITY-CATALOG-PLAN.md](../../meta/ENTITY-CATALOG-PLAN.md) | 实体目录规划 |
 
 ---
 
-*最后更新：2026-07-07*
+*最后更新：2026-07-03*

@@ -14,7 +14,7 @@ import yaml
 
 from etl.parser import slugify
 
-# input_format 关键词 → format_id（fallback；主数据源是 mappings/format-keywords.yaml）
+# input_format 关键词 → format_id
 _FORMAT_KEYWORDS: list[tuple[str, str]] = [
     ("fasta", "fasta"),
     ("mmcif", "mmcif"),
@@ -27,37 +27,19 @@ _FORMAT_KEYWORDS: list[tuple[str, str]] = [
     ("json", "json"),
     ("csv", "csv"),
     ("tsv", "csv"),
+    ("xlsx", "csv"),
+    (".xls", "csv"),
     ("xvg", "csv"),
     ("npy", "npy"),
     ("npz", "npy"),
+    ("h5ad", "h5ad"),
+    ("anndata", "h5ad"),
     (".fa", "fasta"),
     ("python api", "python_api"),
     ("python sdk", "python_api"),
+    ("pir", "pir-alignment"),
+    (".ali", "pir-alignment"),
 ]
-
-
-def load_format_keywords(mappings_dir: Path | None) -> list[tuple[str, str]]:
-    """
-    从 mappings/format-keywords.yaml 加载关键词表。
-
-    主数据源是 yaml 文件（收录新格式时只改这里即可）。
-    当 yaml 缺失或解析失败时回落到内置 _FORMAT_KEYWORDS。
-    """
-    if mappings_dir is not None:
-        path = mappings_dir / "format-keywords.yaml"
-        if path.exists():
-            try:
-                data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-                pairs = [
-                    (str(item["keyword"]), str(item["format_id"]))
-                    for item in (data.get("keywords") or [])
-                    if "keyword" in item and "format_id" in item
-                ]
-                if pairs:
-                    return pairs
-            except Exception:
-                pass
-    return list(_FORMAT_KEYWORDS)
 
 
 def load_aliases(mappings_dir: Path) -> tuple[dict[str, str], dict[str, str], dict]:
@@ -100,19 +82,13 @@ def resolve_model_id(name: str, model_aliases: dict[str, str], known_ids: set[st
     return slug
 
 
-def infer_file_types(text: str, mappings_dir: Path | None = None) -> list[str]:
-    """
-    从 input_format / output_format 文本推断 FileType ID 列表。
-
-    优先从 mappings/format-keywords.yaml 加载关键词表；
-    yaml 缺失时回落到内置 _FORMAT_KEYWORDS。
-    """
+def infer_file_types(text: str) -> list[str]:
+    """从 input_format / output_format 文本推断 FileType ID 列表。"""
     if not text:
         return []
     lower = text.lower()
-    keywords = load_format_keywords(mappings_dir)
     found: list[str] = []
-    for keyword, fmt_id in keywords:
+    for keyword, fmt_id in _FORMAT_KEYWORDS:
         if keyword in lower and fmt_id not in found:
             found.append(fmt_id)
     return found

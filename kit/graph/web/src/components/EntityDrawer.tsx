@@ -129,6 +129,15 @@ export function EntityDrawer({ graph, nodeRef, onClearFocus }: Props) {
       {nodeType === "Dataset" && (
         <>
           <Attr label="类型" value={node.dataset_type} />
+          <Attr
+            label="标签指标"
+            value={
+              Array.isArray(node.label_metrics)
+                ? node.label_metrics.join(", ")
+                : (node.label_metrics as string | undefined)
+            }
+          />
+          <Attr label="分发格式" value={node.file_formats as string | undefined} />
           <Attr label="规模" value={node.size_description} />
           <Attr label="范围" value={node.scope} />
           <AttrList label="维护机构" items={node.organizations} />

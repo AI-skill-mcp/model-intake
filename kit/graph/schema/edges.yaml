@@ -2,7 +2,7 @@
 # 版本: v0.2
 # 可视化数据流规则: doc/10-relationship-rules.md
 
-version: "0.2"
+version: "0.3"
 
 # 可视化层配置（与 ETL 存储方向解耦）
 visualization:
@@ -10,6 +10,7 @@ visualization:
   reverse_for_flow:
     - ACCEPTS      # FileType → Model/Tool
     - TRAINED_ON   # Dataset → Model
+    - PROVIDES     # FileType → Dataset（按格式找数据资源）
     - BASED_ON     # 基座 Model → 衍生 Model
     - INTEGRATES   # 被集成组件 → 集成方
     - REQUIRES     # Tool → Model
@@ -106,6 +107,24 @@ TRAINED_ON:
   storage: "model → dataset"
   flow: "dataset → model"
   source_fields: [training_data]
+
+LABELS:
+  description: 数据集提供的实验/标注标签所对应的量化指标（如 AB-Bind → ΔΔG_bind）
+  from: [Dataset]
+  to: [Metric]
+  directed: true
+  storage: "dataset → metric"
+  flow: "dataset → metric"
+  source_fields: [label_metrics]
+
+PROVIDES:
+  description: 数据集分发/包含的文件格式（如 PDB、CSV）
+  from: [Dataset]
+  to: [FileType]
+  directed: true
+  storage: "dataset → file_type"
+  flow: "file_type → dataset"
+  source_fields: [file_formats]
 
 EVALUATED_ON:
   from: [Model]

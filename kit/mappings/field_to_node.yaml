@@ -1,0 +1,68 @@
+# Markdown 字段 → 图节点属性映射
+# 版本: v0.1
+
+Model:
+  model_id: model_id
+  name: name
+  alias: alias
+  version: version
+  summary:
+    sources:
+      - section: overview
+        extract: first_paragraph
+      - section: overview
+        field: 定位
+    max_length: 500
+  release_date: release_date
+  parameter_count: parameter_count
+  architecture_type: architecture_type
+  multimodal: multimodal
+  commercial_use: commercial_use
+  source_path: _file_path
+  online_resources:
+    github: github
+    huggingface: huggingface
+    zenodo: zenodo
+    homepage: homepage
+    docker: docker
+    colab: colab
+    pypi: python_package
+    modelscope: modelscope
+    papers_with_code: papers_with_code
+    api_endpoint: api_endpoint
+    weights_url: weights
+
+Tool:
+  tool_id: tool_id
+  name: name
+  alias: alias
+  summary:
+    sources:
+      - section: overview
+        extract: first_paragraph
+      - field: description
+    max_length: 300
+    required: true
+  tool_type: tool_type
+  license: license
+  source_path: _file_path
+  online_resources:
+    github: github
+    huggingface: huggingface
+    zenodo: zenodo
+    homepage: homepage
+    docker: docker
+    colab: colab
+    pypi: python_package
+    modelscope: modelscope
+    api_endpoint: api_endpoint
+
+# 占位符值处理规则
+placeholder_rules:
+  patterns:
+    - regex: '^需确认$|^需搜索|^搜索\s'
+      status: placeholder
+    - regex: '^✅'
+      status: unverified
+      action: strip_prefix
+  null_values: [—, "-", "", null]

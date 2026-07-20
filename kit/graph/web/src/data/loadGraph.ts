@@ -197,9 +197,10 @@ export function getModelsByInput(graph: GraphExport, formatId: string): ModelNod
 
 /** 物理量相近、选型时应一并展示的指标（如 Kd ↔ pKd） */
 const RELATED_METRICS: Record<string, string[]> = {
-  kd: ["pkd"],
-  pkd: ["kd"],
+  kd: ["pkd", "ddG_bind"],
+  pkd: ["kd", "ddG_bind"],
   ki: ["pkd"],
+  ddG_bind: ["binding_affinity"],
   binding_affinity: ["kd", "pkd", "ddG_bind"],
 };
 
@@ -252,6 +253,41 @@ export function getToolsByMetric(
     }
   }
   return out;
+}
+
+/** 按指标取数据集（Dataset -[:LABELS]-> Metric），含近邻指标 */
+export function getDatasetsByMetric(
+  graph: GraphExport,
+  metricId: string,
+  includeRelated = true
+): { id: string; name: string }[] {
+  const index = graph.indexes.by_metric_dataset ?? {};
+  const metricIds = includeRelated
+    ? Array.from(new Set([metricId, ...(RELATED_METRICS[metricId] ?? [])]))
+    : [metricId];
+  const seen = new Set<string>();
+  const out: { id: string; name: string }[] = [];
+  for (const mid of metricIds) {
+    for (const id of index[mid] ?? []) {
+      if (seen.has(id)) continue;
+      seen.add(id);
+      const node = graph.nodes.find((n) => n.node_type === "Dataset" && n.dataset_id === id);
+      out.push({ id, name: node?.name ?? id });
+    }
+  }
+  return out;
+}
+
+/** 按文件格式取数据集（Dataset -[:PROVIDES]-> FileType） */
+export function getDatasetsByFormat(
+  graph: GraphExport,
+  formatId: string
+): { id: string; name: string }[] {
+  const ids = graph.indexes.by_format_dataset?.[formatId] ?? [];
+  return ids.map((id) => {
+    const node = graph.nodes.find((n) => n.node_type === "Dataset" && n.dataset_id === id);
+    return { id, name: node?.name ?? id };
+  });
 }
 
 /** @deprecated */

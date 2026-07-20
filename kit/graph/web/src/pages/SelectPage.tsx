@@ -8,6 +8,8 @@ import {
   getModelsByCategory,
   getModelCategoryId,
   getToolsByMetric,
+  getDatasetsByMetric,
+  getDatasetsByFormat,
   listInputFormats,
   listMetrics,
   listCategories,
@@ -55,6 +57,18 @@ export function SelectPage({ graph }: Props) {
     if (!metricId) return [];
     return getToolsByMetric(graph, metricId, true);
   }, [graph, metricId]);
+
+  /** 当前指标 / 输入格式关联的数据集 */
+  const relatedDatasets = useMemo(() => {
+    const byId = new Map<string, string>();
+    if (metricId) {
+      for (const d of getDatasetsByMetric(graph, metricId, true)) byId.set(d.id, d.name);
+    }
+    if (formatId) {
+      for (const d of getDatasetsByFormat(graph, formatId)) byId.set(d.id, d.name);
+    }
+    return [...byId.entries()].map(([id, name]) => ({ id, name }));
+  }, [graph, metricId, formatId]);
 
   // 结果页的侧边筛选统计
   const { archTypes, orgNames, filteredCandidates } = useMemo(() => {
@@ -291,6 +305,21 @@ export function SelectPage({ graph }: Props) {
                     {metricTools.map((t) => (
                       <li key={t.id}>
                         <code>{t.id}</code> — {t.name}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              {relatedDatasets.length > 0 && (
+                <div className="metric-datasets" style={{ marginTop: "1.25rem" }}>
+                  <h3>相关数据集（{relatedDatasets.length}）</h3>
+                  <p className="hint">
+                    来自 Dataset→Metric（LABELS）与 Dataset→FileType（PROVIDES）；按指标/格式反查数据资源。
+                  </p>
+                  <ul>
+                    {relatedDatasets.map((d) => (
+                      <li key={d.id}>
+                        <code>{d.id}</code> — {d.name}
                       </li>
                     ))}
                   </ul>

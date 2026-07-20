@@ -1,8 +1,96 @@
-# Model / Tool 名称别名（收录时按需扩展）
+# 模型/工具名称别名 → model_id / tool_id
+version: "0.1"
 
-models: {}
+models:
+  ESM2: meta-esm2
+  ESM-2: meta-esm2
+  esm2: meta-esm2
+  ESM: meta-esm2
+  ESMFold: meta-esmfold
+  esmfold: meta-esmfold
+  ESMFold2: esmfold2
+  AlphaFold2: alphafold2
+  AF2: alphafold2
+  AlphaFold 2: alphafold2
+  AlphaFold3: alphafold3
+  AF3: alphafold3
+  AlphaFold 3: alphafold3
+  RFdiffusion: rfdiffusion
+  RFdiffusion3: rfdiffusion3
+  RFD3: rfdiffusion3
+  ProteinMPNN: proteinmpnn
+  ColabFold: colabfold
+  Prot-T5: prot-t5
+  ProtT5: prot-t5
+  RhoFold+: rhofold-plus
+  RhoFold: rhofold-plus
+  RNA-FM: rna-fm
+  RNAErnie: rna-ernie
+  RNAbpFlow: rnabpflow
+  GearBind: gearbind
+  GearBind+P: gearbind
+  GearBind-P: gearbind
+  DLP-Affinity: zywang-dlp-affinity
+  DLP_Affinity: zywang-dlp-affinity
+  ESM-FT: zywang-dlp-affinity
+  AbAffinity: abaffinity
+  DeepNano-seq: deepnano-seq
+  DeepNano: deepnano-seq
+  DeepNano-site: deepnano-seq
+  MVSF-AB: mvsf-ab
+  HyperBind2: hyperbind2
+  P2PXML: p2pxml
+  Bind-ddG: bind-ddg
+  BindDDG: bind-ddg
+  GeoPPI: geoppi
 
-tools: {}
+
+  SSIF-Affinity: zhanghaotian-ssif-affinity
+  AffinityFlow: affinityflow
+  BindCraft: bindcraft
+  DiffDock: diffdock
+  ESM3: esm3-sm-open
+  ThermoMPNN: thermomppn
+  EVOLVEpro: evolvepro
+  AbLang: ablang
+  AntiBERTa: antiberta
+  RoseTTAFold: rosettafold
+  RosettaFold3: rosettafold3
+  RoseTTAFold3: rosettafold3
+  RF3: rosettafold3
+  OmegaFold: omegafold
+  Boltz-1: boltz-1
+  Boltz-2: boltz-2
+  Boltz2: boltz-2
+
+  ProtENIX: protenix
+  Protenix: protenix
+  DLKcat: dlkcat
+  UniKP: unikp
+  CatPred: catpred
+
+tools:
+  bpRNA: bprna
+  DSSR: dssr
+  GROMACS: gromacs
+  FoldX: foldx
+  Flex-ddG: flex-ddg
+  Flex ddG: flex-ddg
+  RDKit: rdkit
+  MODELLER: modeller
+  Modeller: modeller
+  PRODIGY: prodigy
+  Prodigy: prodigy
+  prodigy-prot: prodigy
+  mCSM-AB2: mcsm-ab2
+  mCSM-AB: mcsm-ab2
+  CSM-AB: mcsm-ab2
+  mmCSM-AB: mcsm-ab2
+  MutaBind2: mutabind2
+  MutaBind: mutabind2
 
 external_policy:
   create_stub: true
+  stub_properties:
+    in_corpus: false
+    node_subtype: external

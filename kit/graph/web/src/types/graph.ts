@@ -48,6 +48,8 @@ export interface GraphNode {
   dataset_type?: string;
   license_note?: string;
   size_description?: string;
+  label_metrics?: string[];
+  file_formats?: string;
   scope?: string;
   /** Metric */
   quantity_kind?: string;
@@ -77,6 +79,10 @@ export interface GraphExport {
     by_metric: Record<string, string[]>;
     /** Tool -[:MEASURES]-> Metric */
     by_metric_tool?: Record<string, string[]>;
+    /** Dataset -[:LABELS]-> Metric */
+    by_metric_dataset?: Record<string, string[]>;
+    /** Dataset -[:PROVIDES]-> FileType */
+    by_format_dataset?: Record<string, string[]>;
     /** @deprecated 使用 by_metric */
     by_task?: Record<string, string[]>;
     by_category: Record<string, string[]>;

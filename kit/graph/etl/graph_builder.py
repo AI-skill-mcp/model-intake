@@ -133,10 +133,9 @@ def _attach_file_io_edges(
     entity_type: str,
     entity_id: str,
     fields: dict[str, str],
-    mappings_dir=None,
 ) -> None:
     """为 Model / Tool 节点建立 ACCEPTS / PRODUCES 边。"""
-    for fmt in infer_file_types(fields.get("input_format", ""), mappings_dir):
+    for fmt in infer_file_types(fields.get("input_format", "")):
         _add_node(nodes, {
             "node_type": "FileType",
             "format_id": fmt,
@@ -144,7 +143,7 @@ def _attach_file_io_edges(
         })
         _add_edge(edges, "ACCEPTS", entity_type, entity_id, "FileType", fmt, {"required": True})
 
-    for fmt in infer_file_types(fields.get("output_format", ""), mappings_dir):
+    for fmt in infer_file_types(fields.get("output_format", "")):
         _add_node(nodes, {
             "node_type": "FileType",
             "format_id": fmt,
@@ -289,7 +288,7 @@ def build_graph(paths: Paths) -> tuple[dict[str, dict], list[dict], dict[str, st
             _add_edge(edges, "MEASURES", "Model", model_id, "Metric", metric_id)
 
         # FileTypes input/output
-        _attach_file_io_edges(edges, nodes, "Model", model_id, fields, paths.mappings)
+        _attach_file_io_edges(edges, nodes, "Model", model_id, fields)
 
         # Paper → 嵌入 Model 属性，不创建独立 Paper 节点
         paper_title = fields.get("paper", "").strip()
@@ -454,7 +453,7 @@ def build_graph(paths: Paths) -> tuple[dict[str, dict], list[dict], dict[str, st
             tool_node["license"] = fields["license"].strip()
         _add_node(nodes, tool_node)
 
-        _attach_file_io_edges(edges, nodes, "Tool", tool_id, fields, paths.mappings)
+        _attach_file_io_edges(edges, nodes, "Tool", tool_id, fields)
 
         for metric_id in extract_metrics_from_task_coverage(
             fields.get("task_coverage", ""), metric_aliases
@@ -490,6 +489,34 @@ def build_graph(paths: Paths) -> tuple[dict[str, dict], list[dict], dict[str, st
             nodes[key] = {"node_type": "Dataset", **cat}
         else:
             merge_node_props(nodes[key], cat)
+
+    # Dataset → Metric（LABELS）/ FileType（PROVIDES）
+    for ds_id, cat in datasets_catalog.items():
+        label_items = cat.get("label_metrics") or []
+        if isinstance(label_items, list):
+            label_text = ", ".join(str(x) for x in label_items)
+        else:
+            label_text = str(label_items)
+        for metric_id in extract_metrics_from_task_coverage(label_text, metric_aliases):
+            metric_node = {
+                "node_type": "Metric",
+                "metric_id": metric_id,
+                "name": metrics_by_id.get(metric_id, {}).get("name", metric_id),
+            }
+            if metrics_by_id.get(metric_id, {}).get("unit"):
+                metric_node["unit"] = metrics_by_id[metric_id]["unit"]
+            if metric_id in metrics_catalog:
+                merge_node_props(metric_node, metrics_catalog[metric_id])
+            _add_node(nodes, metric_node)
+            _add_edge(edges, "LABELS", "Dataset", ds_id, "Metric", metric_id)
+
+        for fmt in infer_file_types(cat.get("file_formats", "") or ""):
+            _add_node(nodes, {
+                "node_type": "FileType",
+                "format_id": fmt,
+                "name": fmt.upper(),
+            })
+            _add_edge(edges, "PROVIDES", "Dataset", ds_id, "FileType", fmt)
 
     return nodes, edges, file_hashes, warnings
 

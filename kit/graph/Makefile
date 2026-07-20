@@ -1,7 +1,7 @@
 COMPOSE := docker compose -f docker-compose.yml
 COMPOSE_DEV := docker compose -f docker-compose.yml -f docker-compose.dev.yml
 
-.PHONY: up down etl import web api logs reset etl-local import-local
+.PHONY: up down etl import web web-logs web-local web-install api logs reset etl-local import-local
 
 up:
 	$(COMPOSE) up -d neo4j
@@ -16,7 +16,10 @@ import:
 	$(COMPOSE) run --rm etl python -m etl.import_neo4j
 
 web:
-	$(COMPOSE_DEV) --profile web up web
+	$(COMPOSE_DEV) --profile web up -d --build web
+
+web-logs:
+	$(COMPOSE_DEV) --profile web logs -f web
 
 web-local:
 	cd web && npm run dev

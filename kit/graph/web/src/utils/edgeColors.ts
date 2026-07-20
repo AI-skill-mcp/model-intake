@@ -6,8 +6,10 @@ export const EDGE_TYPE_COLORS: Record<string, { color: string; label: string }> 
   ALTERNATIVE_TO: { color: "#f59e0b", label: "替代" },
   SUCCESSOR_OF: { color: "#ec4899", label: "后继" },
   MEASURES: { color: "#10b981", label: "预测指标" },
+  LABELS: { color: "#059669", label: "数据标签" },
   ACCEPTS: { color: "#d97706", label: "接受输入" },
   PRODUCES: { color: "#06b6d4", label: "产出格式" },
+  PROVIDES: { color: "#0ea5e9", label: "提供格式" },
   TRAINED_ON: { color: "#2563eb", label: "训练数据" },
   REQUIRES: { color: "#a855f7", label: "依赖工具" },
   USES_MODALITY: { color: "#0d9488", label: "使用模态" },
@@ -24,8 +26,10 @@ export const EXPLORE_EDGE_TYPES = [
   "ALTERNATIVE_TO",
   "SUCCESSOR_OF",
   "MEASURES",
+  "LABELS",
   "ACCEPTS",
   "PRODUCES",
+  "PROVIDES",
   "TRAINED_ON",
   "REQUIRES",
 ] as const;
@@ -64,6 +68,7 @@ export const HIDDEN_NODE_TYPES = new Set([
 export const EDGE_REVERSE_FOR_FLOW = new Set([
   "ACCEPTS", // 输入格式 → 模型
   "TRAINED_ON", // 数据集 → 模型
+  "PROVIDES", // 文件格式 → 数据集
   "BASED_ON", // 基座模型 → 衍生模型
   "INTEGRATES", // 被集成组件 → 集成方
   "REQUIRES", // 工具 → 模型

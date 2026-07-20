@@ -25,12 +25,15 @@ def build_indexes(nodes: list[dict], edges: list[dict]) -> dict[str, dict[str, l
     """
     构建前端筛选索引。
 
-    返回 by_input_format, by_metric, by_metric_tool, by_category, by_category_dataset 映射。
+    返回 by_input_format, by_metric, by_metric_tool, by_metric_dataset,
+    by_format_dataset, by_category, by_category_dataset 映射。
     """
     models = {n["model_id"] for n in nodes if n.get("node_type") == "Model" and n.get("in_corpus", True) is not False}
     by_input: dict[str, list[str]] = {}
     by_metric: dict[str, list[str]] = {}
     by_metric_tool: dict[str, list[str]] = {}
+    by_metric_dataset: dict[str, list[str]] = {}
+    by_format_dataset: dict[str, list[str]] = {}
     by_category: dict[str, list[str]] = {}
     by_category_dataset: dict[str, list[str]] = {}
     model_to_categories: dict[str, list[str]] = {}
@@ -56,6 +59,18 @@ def build_indexes(nodes: list[dict], edges: list[dict]) -> dict[str, dict[str, l
             by_metric_tool.setdefault(metric_id, [])
             if tool_id not in by_metric_tool[metric_id]:
                 by_metric_tool[metric_id].append(tool_id)
+        elif e["type"] == "LABELS" and e["from"]["node_type"] == "Dataset":
+            ds_id = e["from"]["id"]
+            metric_id = e["to"]["id"]
+            by_metric_dataset.setdefault(metric_id, [])
+            if ds_id not in by_metric_dataset[metric_id]:
+                by_metric_dataset[metric_id].append(ds_id)
+        elif e["type"] == "PROVIDES" and e["from"]["node_type"] == "Dataset":
+            ds_id = e["from"]["id"]
+            fid = e["to"]["id"]
+            by_format_dataset.setdefault(fid, [])
+            if ds_id not in by_format_dataset[fid]:
+                by_format_dataset[fid].append(ds_id)
         elif e["type"] == "BELONGS_TO":
             mid = e["from"]["id"]
             cid = e["to"]["id"]
@@ -80,6 +95,8 @@ def build_indexes(nodes: list[dict], edges: list[dict]) -> dict[str, dict[str, l
         "by_input_format": by_input,
         "by_metric": by_metric,
         "by_metric_tool": by_metric_tool,
+        "by_metric_dataset": by_metric_dataset,
+        "by_format_dataset": by_format_dataset,
         "by_category": by_category,
         "by_category_dataset": by_category_dataset,
     }

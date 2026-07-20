@@ -34,6 +34,10 @@ training_text_aliases:
   "INDI ~1100万 sdAb 序列（MLM）": indi
   "AB-Bind / sdAb-DB（亲和力）": ab-bind
   "AB-Bind": ab-bind
+  "AB_Bind": ab-bind
+  "Antibody-Bind": ab-bind
+  "Antibody Binding mutational database": ab-bind
+  "AB-Bind + sdAb-DB": ab-bind
   "sdAb-DB": sdab-db
 
 

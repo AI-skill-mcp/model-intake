@@ -1,0 +1,34 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: docker/web/Dockerfile
+    profiles: [web]
+    ports:
+      - "${WEB_PORT:-5173}:5173"
+    volumes:
+      # 源码热更新；独立挂载 node_modules，避免宿主机目录覆盖镜像内依赖
+      - ./web:/app
+      - web_node_modules:/app/node_modules
+      # predev 从 ../data 复制 graph_export.json，对应容器内 /data
+      - ./data:/data:ro
+    command: npm run dev -- --host 0.0.0.0 --port 5173
+
+  api:
+    profiles: [api]
+    build:
+      context: .
+      dockerfile: docker/api/Dockerfile
+    ports:
+      - "${API_PORT:-8080}:8080"
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-graphdb-dev-password}
+      API_BIND: ${API_BIND:-127.0.0.1}
+    depends_on:
+      neo4j:
+        condition: service_healthy
+
+volumes:
+  web_node_modules:

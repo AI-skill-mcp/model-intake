@@ -1,84 +1,62 @@
-# Graph Database（model-intake 内置）
+# Graph_Database
 
-本目录是**完整图谱技能包**的实现源码：ETL、Schema、Web 前端、Docker/Makefile。  
-bootstrap 时整包复制到用户工作区的 `Graph_Database/`。
+生物学大模型知识图谱 — 从 `bioinformatics/` 构建可查询图数据。
 
-> **embedded 开发**：在 monorepo 的 `Graph_Database/` 调试后，须按 `.cursor/rules/graph-database-sync-to-skill.mdc` 回写本目录。
-
-## 目录结构
-
-```
-kit/graph/
-├── README.md              ← 本文件
-├── Makefile               ← etl-local / import-local / web-local
-├── docker-compose.yml
-├── docker/                ← ETL 镜像
-├── etl/                   ← Python 流水线（唯一 ETL 源码）
-├── schema/                ← nodes/edges/online_resources + CHANGELOG
-├── web/                   ← React + Vite + Cytoscape 探索前端（完整源码）
-├── overrides/             ← 手工边覆盖（可选）
-└── doc/                   ← 补充说明（可选）
-```
-
-映射白名单：`kit/mappings/`（bootstrap 时复制到 `Graph_Database/mappings/`）。
-
-## 构建与运行
-
-### 前置
-
-- Python 3.11+，`pip install -r docker/etl/requirements.txt`
-- 原始数据：`{rawdata_dir}/`（embedded 为 `bioinformatics/`）
-- Node 18+（Web）
-
-### ETL（生成图谱数据）
+## 快速开始
 
 ```bash
-cd Graph_Database   # 或 kit/graph 下 PYTHONPATH=. 指向 etl 包根
-make etl-local
-# → data/nodes.jsonl, data/edges.jsonl, data/graph_export.json, data/etl_report.json
-```
+cd Graph_Database
+cp .env.example .env
 
-**时机**：每次收录 Model/Tool/Metric/Dataset/Format 并更新 mappings 后；或修改 `etl/`、`mappings/` 后。
-
-**输入**：`../bioinformatics/`（或 `RAWDATA_DIR`）下 md + `mappings/*.yaml`  
-**输出**：`data/graph_export.json`（含 `indexes`：`by_metric`、`by_metric_tool` 等）
-
-### Neo4j 导入（可选）
-
-```bash
+# 方式 A：Docker（基础镜像默认走 DaoCloud，pip/npm 走国内源）
 make up          # 启动 Neo4j
+make etl         # 容器内 ETL
+make import      # 容器内导入 Neo4j
+make web         # 启动探索前端（后台）
+
+# 方式 B：本地 Python（ETL / 导入）
+pip install -r docker/etl/requirements.txt
+make up          # 仍需 Docker 跑 Neo4j
+make etl-local
 make import-local
+make web-local   # 本机前端
 ```
 
-### Web 探索前端
+- 探索前端: http://localhost:5173 （`make web` 或 `make web-local`）
+- Neo4j Browser: http://localhost:7474 （用户 `neo4j` / 密码见 `.env`）
+- ETL 产物: `data/nodes.jsonl`, `data/graph_export.json`, `data/etl_report.json`
 
-```bash
-make web-install
-make web-local   # 开发；build 时 prebuild 复制 graph_export.json → public/data/
-```
+## 文档
 
-源码目录：`kit/graph/web/`（React + Vite + Cytoscape.js）。bootstrap 时随 `kit/graph/` 一并部署到 `Graph_Database/web/`。
-
-Docker：`make web`（compose profile web）。
-
-## 数据创建规则（摘要）
-
-完整规则：`kit/rules/relationship-rules.md`。
-
-| 阶段 | 规则 |
+| 文档 | 说明 |
 |------|------|
-| **解析** | `etl/parser.py`：列表支持 `,`/`，`/`、`；表格值外层反引号剥离 |
-| **Metric** | `task_coverage` → `metrics.yaml` aliases → `MEASURES` 边；Tool 边入 `by_metric_tool` |
-| **Dataset** | 白名单 + 可验证 url/doi；`training_data` 映射失败写 warning |
-| **FileType** | `format-keywords.yaml` + `infer_file_types()` |
-| **存储 vs 可视化** | JSON/Neo4j 存主体→客体；Web 箭头用 `orientEdgeForFlow()`，不改存储边 |
-| **探索可见性** | 默认 Metric 须与 Model 连通；搜索 `?focus=` 用 `forcedVisibleRefs` 强制入图 |
-| **搜索聚焦** | Cmd+K → `/explore?focus=Type:id` → 扩展筛选 + `GraphCanvas` 居中目标节点 |
+| [doc/README.md](./doc/README.md) | 文档导航 |
+| **[doc/10-relationship-rules.md](./doc/10-relationship-rules.md)** | **关系规则权威**（存储方向、可视化箭头、实体校验） |
+| [docs/todo_list.md](./docs/todo_list.md) | **系统优化 Todo**（部署形态、功能路线、成本评估） |
+| [schema/edges.yaml](./schema/edges.yaml) | 关系类型 Schema（含 visualization 配置） |
 
-## 版本记录
+## 目录
 
-见 `schema/CHANGELOG.md`。
+```
+Graph_Database/
+├── doc/           # 技术方案（含 10-relationship-rules.md）
+├── etl/           # Python ETL
+├── schema/        # 节点/边 Schema
+├── mappings/      # 字段映射、metrics/datasets 别名
+├── scripts/       # fix_model_io.py 等维护脚本
+├── web/           # React 探索前端
+├── data/          # ETL 产物（运行后生成）
+├── overrides/     # 人工覆盖层
+└── docker/        # 容器定义
+```
 
----
+## 当前进度
 
-*kit graph package — 与 model-intake skill 同生命周期维护*
+| 里程碑 | 状态 |
+|--------|------|
+| M0 文档 + Compose | 完成 |
+| M1 ETL → JSONL | 完成（99 模型，21 Dataset，21 Metric） |
+| M2 Neo4j 导入 | 完成 |
+| M3 Web 前端 | 完成（头部筛选 + 实体抽屉 + 数据流箭头） |
+| M5 API | 待开发 |
+| M6 MCP | 待开发 |

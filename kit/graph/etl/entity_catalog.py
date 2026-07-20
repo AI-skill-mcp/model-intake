@@ -80,6 +80,15 @@ def _dataset_node(fields: dict[str, str], content: str, stem: str) -> dict:
     mods = parse_list_field(fields.get("modalities", ""))
     if mods:
         node["modalities"] = mods
+    # 图谱建边源字段：标签指标 / 分发格式（保留原文供 graph_builder 解析）
+    label_metrics = parse_list_field(fields.get("label_metrics", ""))
+    if label_metrics:
+        node["label_metrics"] = label_metrics
+    ff = (fields.get("file_formats") or "").strip()
+    if ff and ff not in ("—", "-"):
+        node["file_formats"] = ff
+    if fields.get("sample_count") and fields["sample_count"].strip() not in ("—", "-"):
+        node["sample_count"] = fields["sample_count"].strip()
     if fields.get("source_path"):
         node["source_path"] = fields["source_path"].strip()
     return node
@@ -149,20 +158,22 @@ def resolve_training_dataset_ids(
     if not raw or raw in ("—", "-"):
         return []
 
+    # 多来源（A + B）必须先按段解析；否则 whole 路径会把第一段 slugify
+    # 成已有 catalog id（如 cath），直接返回而丢失后续数据集。
+    parts = [p.strip() for p in re.split(r"\s*\+\s*", raw) if p.strip()]
+    if len(parts) > 1:
+        seen: list[str] = []
+        for part in parts:
+            ds_id = dataset_id_from_text(part, aliases)
+            if ds_id and ds_id in catalog and ds_id not in seen:
+                seen.append(ds_id)
+        return seen
+
     whole_id = dataset_id_from_text(raw, aliases)
     if whole_id and whole_id in catalog:
         return [whole_id]
+    return []
 
-    parts = [p.strip() for p in re.split(r"\s*\+\s*", raw) if p.strip()]
-    if len(parts) <= 1:
-        return []
-
-    seen: list[str] = []
-    for part in parts:
-        ds_id = dataset_id_from_text(part, aliases)
-        if ds_id and ds_id in catalog and ds_id not in seen:
-            seen.append(ds_id)
-    return seen
 
 
 def load_dataset_training_aliases(mappings_dir: Path) -> dict[str, str]:
@@ -180,7 +191,7 @@ def load_dataset_training_aliases(mappings_dir: Path) -> dict[str, str]:
 
 def merge_node_props(base: dict, overlay: dict) -> None:
     """将 overlay 中非空字段合并进 base（不覆盖已有列表的并集）。"""
-    list_keys = {"organizations", "modalities", "domains"}
+    list_keys = {"organizations", "modalities", "domains", "label_metrics"}
     for key, val in overlay.items():
         if key in ("node_type", "metric_id", "dataset_id"):
             continue

@@ -194,6 +194,14 @@ Dataset:
     composition: { type: string }
     splits: { type: string }
     preprocessing: { type: string }
+    label_metrics:
+      type: array
+      items: string
+      description: 数据集标签对应的指标别名列表（ETL 映射为 LABELS 边）
+    file_formats:
+      type: string
+      description: 数据集分发格式关键词文本（ETL 映射为 PROVIDES 边）
+    sample_count: { type: string }
     source_path: { type: string }
 
 # ---------------------------------------------------------------------------
