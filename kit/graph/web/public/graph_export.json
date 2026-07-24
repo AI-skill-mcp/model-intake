@@ -1,10 +1,10 @@
 {
   "schema_version": "0.1.0",
-  "generated_at": "2026-07-20T08:58:52.919311+00:00",
+  "generated_at": "2026-07-24T07:45:09.212722+00:00",
   "stats": {
-    "nodes": 267,
-    "edges": 1127,
-    "models": 175
+    "nodes": 278,
+    "edges": 1165,
+    "models": 183
   },
   "nodes": [
     {
@@ -1807,6 +1807,68 @@
     },
     {
       "node_type": "Model",
+      "model_id": "abagipa",
+      "name": "Prediction of antibody-antigen interaction based on backbone aware with invariant point attention",
+      "display_name": "Prediction of antibody-antigen interaction...",
+      "alias": [
+        "AbAgIPA",
+        "AbAgIPA-Paddle",
+        "AbAgIPA-Twins"
+      ],
+      "summary": "AbAgIPA（清华大学自动化系，*BMC Bioinformatics* 2024）面向**抗体结构未知**场景的抗体–抗原相互作用预测：用 IgFold 由抗体序列预测骨架，抗原侧使用候选表位结构；以残基骨架刚体帧 \\(T_i=(R_i,t_i)\\) 与理化特征为输入，经改进的不变点注意力（Invariant Point Attention，IPA）提取相互作用模式，再经全局 max-pool、特征拼接与全连接层输出 **bind / non-bind** 二分类。代码开源于 [gmthu66/AbAgIPA](https://github.com/gmthu66/AbAgIPA)。",
+      "version": null,
+      "node_subtype": "downstream",
+      "release_date": "2024-11",
+      "parameter_count": null,
+      "architecture_type": "预测骨架 + 改进 IPA + max-pool / FC 分类",
+      "multimodal": false,
+      "commercial_use": "restricted",
+      "source_path": "bioinformatics/model/protein/abagipa.md",
+      "content_hash": "e9b1305b53b29fb5b912b4f129cb2a5140eefff45af2ee1fc2f863456fc680ca",
+      "online_resources": {
+        "github": "https://github.com/gmthu66/AbAgIPA"
+      },
+      "online_resources_meta": {
+        "github": {
+          "status": "verified"
+        }
+      },
+      "organization": "清华大学自动化系（Miao Gu, Weiyang Yang, Min Liu）",
+      "modalities": [
+        "protein_sequence",
+        "protein_structure"
+      ],
+      "paper": {
+        "paper_id": "10-1186-s12859-024-05961-w",
+        "title": "Prediction of antibody-antigen interaction based on backbone aware with invariant point attention",
+        "url": "https://doi.org/10.1186/s12859-024-05961-w"
+      }
+    },
+    {
+      "node_type": "License",
+      "license_id": "cc-by-nc-nd-4-0-spdx",
+      "name": "论文：CC BY-NC-ND 4.0；代码：未声明 SPDX"
+    },
+    {
+      "node_type": "Model",
+      "model_id": "abagintpre",
+      "name": "AbAgIntPre",
+      "summary": "外部引用模型（库外）: AbAgIntPre",
+      "in_corpus": false,
+      "node_subtype": "external",
+      "source_path": null
+    },
+    {
+      "node_type": "Model",
+      "model_id": "igfold-antiberty",
+      "name": "IgFold / AntiBERTy（抗体结构侧）",
+      "summary": "外部引用: IgFold / AntiBERTy（抗体结构侧）",
+      "in_corpus": false,
+      "node_subtype": "external",
+      "source_path": null
+    },
+    {
+      "node_type": "Model",
       "model_id": "ablang",
       "name": "AbLang",
       "display_name": "AbLang",
@@ -2425,33 +2487,56 @@
     {
       "node_type": "Model",
       "model_id": "bindcraft",
-      "name": "BindCraft",
-      "display_name": "BindCraft",
-      "alias": [],
-      "summary": "BindCraft 是 Baker 实验室发布的端到端高亲和力结合剂设计管线，整合 RFdiffusion（结合剂骨架生成）、ProteinMPNN（序列设计）与 AlphaFold2（结构自洽性过滤），面向蛋白-蛋白结合剂与抗体样结合分子设计。",
+      "name": "One-shot design of functional protein binders with BindCraft",
+      "display_name": "One-shot design of functional protein bind...",
+      "alias": [
+        "BindCraft"
+      ],
+      "summary": "BindCraft（EPFL / SIB Correia 实验室与 MIT Ovchinnikov 实验室等合作，*Nature* 2025）是面向蛋白–蛋白结合剂（binder）的**开源端到端设计管线**：经 ColabDesign 对 AlphaFold2-Multimer（AF2-Multimer）权重反向传播「幻觉」（hallucination）出 binder 骨架与界面，再用 ProteinMPNN 优化序列，最后以 AF2 单体/复合物置信度与 PyRosetta 界面能量过滤。实验成功率约 **10–100%**，可在无需高通量筛选的情况下得到纳摩尔级亲和力设计。",
       "version": null,
       "node_subtype": "pipeline",
-      "release_date": "2024",
-      "parameter_count": null,
-      "architecture_type": null,
+      "release_date": "2024-09（bioRxiv）；正式刊出 2025-10",
+      "parameter_count": "管线级（不单独训练新大模型；依赖 AF2 / MPNN 权重）",
+      "architecture_type": "pipeline（AF2 反向传播 hallucination + ProteinMPNN + AF2/PyRosetta 过滤）",
       "multimodal": false,
-      "commercial_use": "unknown",
+      "commercial_use": "restricted",
       "source_path": "bioinformatics/model/protein/bindcraft.md",
-      "content_hash": "04b7a401d11a3a1c9f65445953039d85771839f5019761816f05851c0524637a",
+      "content_hash": "f45c689f0a93278fdf163d9f5af84cc2bccb10ee62058c2f75141ff1e4e0bb3c",
       "online_resources": {
-        "github": "https://github.com/martinpacesa/BindCraft"
+        "github": "https://github.com/martinpacesa/BindCraft",
+        "homepage": "https://github.com/martinpacesa/BindCraft/wiki"
       },
       "online_resources_meta": {
         "github": {
           "status": "verified"
+        },
+        "homepage": {
+          "status": "verified"
         }
       },
-      "organization": "Baker Lab (UW)",
+      "organization": "Correia Lab（EPFL / SIB）；Ovchinnikov Lab（MIT）；多机构协作",
+      "modalities": [
+        "protein_structure"
+      ],
       "paper": {
-        "paper_id": "10-1038-s41586-024-08070-x",
-        "title": "BindCraft: one-shot design of functional protein binders",
-        "url": "https://doi.org/10.1038/s41586-024-08070-x"
+        "paper_id": "10-1038-s41586-025-09429-6",
+        "title": "One-shot design of functional protein binders with BindCraft",
+        "url": "https://doi.org/10.1038/s41586-025-09429-6"
       }
+    },
+    {
+      "node_type": "License",
+      "license_id": "mit-cc-by-nc-nd-4-0-pyrosetta-af",
+      "name": "代码 MIT；论文 CC BY-NC-ND 4.0；PyRosetta / AF2 另议"
+    },
+    {
+      "node_type": "Model",
+      "model_id": "af2-af2-multimer-proteinmpnn-original-soluble",
+      "name": "AF2 / AF2-Multimer 权重；ProteinMPNN（original / soluble）",
+      "summary": "外部引用: AF2 / AF2-Multimer 权重；ProteinMPNN（original / soluble）",
+      "in_corpus": false,
+      "node_subtype": "external",
+      "source_path": null
     },
     {
       "node_type": "Model",
@@ -2506,7 +2591,7 @@
       "multimodal": false,
       "commercial_use": "allowed",
       "source_path": "bioinformatics/model/protein/boltz-2.md",
-      "content_hash": "8714496830546e452063333c373d305785854a7cd93e5b5f6aa9496cd07fecef",
+      "content_hash": "bfc994022ad62c6574e0f16ead52bd898004297edc60e2d9331140cf73959a9d",
       "online_resources": {
         "github": "https://github.com/jwohlwend/boltz",
         "homepage": "https://boltz.bio/boltz2"
@@ -2948,7 +3033,7 @@
       "multimodal": false,
       "commercial_use": "restricted",
       "source_path": "bioinformatics/model/protein/dlab.md",
-      "content_hash": "239a6cb9717eb1f9af01701636ae243a52cccdc04545d535b7075e9ccaaf113a",
+      "content_hash": "f8203734fb2de84612f77cd893d805fa47921ac603c255333f4c2b146f124b5e",
       "online_resources": {
         "github": "https://github.com/oxpig/DLAB"
       },
@@ -4006,6 +4091,76 @@
     },
     {
       "node_type": "Model",
+      "model_id": "nesso-1",
+      "name": "Nesso-1: Accelerating Open-Source Binding Affinity Predictions",
+      "display_name": "Nesso-1",
+      "alias": [
+        "Nesso-1",
+        "Nesso",
+        "nesso"
+      ],
+      "summary": "Nesso-1（Valence Labs / Recursion，技术报告 2026）是面向**蛋白–小分子结合亲和力**的开源粗粒度共折叠（coarse-grained cofolding）模型：以蛋白序列与配体 SMILES/CCD/SDF 为输入，经 Pairformer trunk 学习 token 级成对表示后，用独立亲和力模块输出结合似然与亲和力连续值。相对全原子基线 Boltz-2，单 GPU 约 **~1 s/预测**（文内报告平均 **>10×** 加速），并在 Boltz-2 同款公开基准、OpenBind 及内部生化 assay 上匹配或超过其精度。代码与权重以 **Apache-2.0** 发布。",
+      "version": null,
+      "node_subtype": "downstream",
+      "release_date": "2026-07",
+      "parameter_count": null,
+      "architecture_type": "粗粒度共折叠 Pairformer trunk + 独立亲和力模块",
+      "multimodal": false,
+      "commercial_use": "allowed",
+      "source_path": "bioinformatics/model/protein/nesso-1.md",
+      "content_hash": "52544f8af336ef5b5d21c3b8e4f39f8437a1b049a7a13fc586d2f221bf3c7294",
+      "online_resources": {
+        "github": "https://github.com/recursionpharma/nesso",
+        "homepage": "https://huggingface.co/recursionpharma/nesso"
+      },
+      "online_resources_meta": {
+        "github": {
+          "status": "verified"
+        },
+        "homepage": {
+          "status": "verified"
+        }
+      },
+      "organization": "Valence Labs / Recursion（Nikhil Shenoy, David Errington, Emmanuel Bengio, Francesco Di Giovanni 等）",
+      "modalities": [
+        "protein_sequence",
+        "small_molecule"
+      ],
+      "paper": {
+        "paper_id": "https-www-valencelabs-com-wp-content-uploads-2026-07-nesso1-pdf",
+        "title": "Nesso-1: Accelerating Open-Source Binding Affinity Predictions",
+        "url": "https://www.valencelabs.com/wp-content/uploads/2026/07/nesso1.pdf"
+      }
+    },
+    {
+      "node_type": "Model",
+      "model_id": "terrabind",
+      "name": "TerraBind（闭源）",
+      "summary": "外部引用模型（库外）: TerraBind（闭源）",
+      "in_corpus": false,
+      "node_subtype": "external",
+      "source_path": null
+    },
+    {
+      "node_type": "Model",
+      "model_id": "hermes",
+      "name": "Hermes",
+      "summary": "外部引用模型（库外）: Hermes",
+      "in_corpus": false,
+      "node_subtype": "external",
+      "source_path": null
+    },
+    {
+      "node_type": "Model",
+      "model_id": "boltz-2-terrabind-token-trunk",
+      "name": "Boltz-2（训练数据与亲和力优化框架对齐）；方法上借鉴 TerraBind（去扩散模块、token 级 trunk）",
+      "summary": "外部引用: Boltz-2（训练数据与亲和力优化框架对齐）；方法上借鉴 TerraBind（去扩散模块、token 级 trunk）",
+      "in_corpus": false,
+      "node_subtype": "external",
+      "source_path": null
+    },
+    {
+      "node_type": "Model",
       "model_id": "fredhutch-nucleotide-cnn-shm",
       "name": "Nucleotide context CNN for somatic hypermutation modeling",
       "display_name": "Nucleotide context CNN for somatic hypermu...",
@@ -4377,7 +4532,7 @@
       "multimodal": false,
       "commercial_use": "allowed",
       "source_path": "bioinformatics/model/protein/rfdiffusion3.md",
-      "content_hash": "fe6e524cc9a845e9e8ef98034d6a95b10003030950adfccea40fa4f947321ad3",
+      "content_hash": "edb8de177ee1f82e0d069fba4917e6f2d089ce74b7adb83c113e857032c72e52",
       "online_resources": {
         "github": "https://github.com/RosettaCommons/foundry",
         "homepage": "https://rosettacommons.github.io/foundry/models/rfd3/",
@@ -5347,6 +5502,28 @@
       },
       "alias": "MutaBind",
       "license": "Web 服务学术使用（以站点条款为准）"
+    },
+    {
+      "node_type": "Tool",
+      "tool_id": "openfe",
+      "name": "OpenFE（Open Free Energy toolkit）",
+      "summary": "OpenFE（Open Free Energy，OMSF 托管的预竞争联盟旗舰包）是面向药物发现的**开源炼金术相对/绝对结合自由能（RBFE / ABFE）**计算工具包：可规划配体变换网络、准备体系并驱动分子动力学自由能协议。2026 年 JCIM 大规模工业协作评测（15 家药企、>1700 配体）表明其开箱精度接近商业方案，满足大规模工业应用所需的稳健性、可重复性与吞吐；代码以 **MIT** 许可持续更新，**商业可用**。",
+      "tool_type": "pipeline",
+      "source_path": "bioinformatics/tools/openfe.md",
+      "online_resources": {
+        "github": "https://github.com/OpenFreeEnergy/openfe",
+        "homepage": "https://openfree.energy/"
+      },
+      "online_resources_meta": {
+        "github": {
+          "status": "verified"
+        },
+        "homepage": {
+          "status": "verified"
+        }
+      },
+      "alias": "OpenFE, openfe, Open Free Energy",
+      "license": "MIT"
     },
     {
       "node_type": "Tool",
@@ -9183,7 +9360,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -9195,7 +9372,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -9330,6 +9507,166 @@
       "to": {
         "node_type": "Model",
         "id": "meta-esm2"
+      },
+      "properties": {}
+    },
+    {
+      "type": "BELONGS_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Category",
+        "id": "protein"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "docking_score"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "binding_affinity"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ACCEPTS",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "fasta"
+      },
+      "properties": {
+        "required": true
+      }
+    },
+    {
+      "type": "ACCEPTS",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "pdb"
+      },
+      "properties": {
+        "required": true
+      }
+    },
+    {
+      "type": "PRODUCES",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "json"
+      },
+      "properties": {}
+    },
+    {
+      "type": "PRODUCES",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "csv"
+      },
+      "properties": {}
+    },
+    {
+      "type": "HAS_LICENSE",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "License",
+        "id": "cc-by-nc-nd-4-0-spdx"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "dlab"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "deeprank-ab"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "abagintpre"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "deepab"
+      },
+      "properties": {}
+    },
+    {
+      "type": "BASED_ON",
+      "from": {
+        "node_type": "Model",
+        "id": "abagipa"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "igfold-antiberty"
       },
       "properties": {}
     },
@@ -10649,7 +10986,31 @@
       },
       "to": {
         "node_type": "Metric",
+        "id": "binding_site"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "bindcraft"
+      },
+      "to": {
+        "node_type": "Metric",
         "id": "plddt"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "bindcraft"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "ddG_bind"
       },
       "properties": {}
     },
@@ -10706,6 +11067,18 @@
       "properties": {}
     },
     {
+      "type": "PRODUCES",
+      "from": {
+        "node_type": "Model",
+        "id": "bindcraft"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "csv"
+      },
+      "properties": {}
+    },
+    {
       "type": "HAS_LICENSE",
       "from": {
         "node_type": "Model",
@@ -10713,7 +11086,31 @@
       },
       "to": {
         "node_type": "License",
-        "id": "mit"
+        "id": "mit-cc-by-nc-nd-4-0-pyrosetta-af"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "bindcraft"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "rfdiffusion"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "bindcraft"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "biogeom-geoflow-v3"
       },
       "properties": {}
     },
@@ -10725,7 +11122,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "rfdiffusion"
+        "id": "alphafold2"
       },
       "properties": {}
     },
@@ -10742,14 +11139,14 @@
       "properties": {}
     },
     {
-      "type": "INTEGRATES",
+      "type": "BASED_ON",
       "from": {
         "node_type": "Model",
         "id": "bindcraft"
       },
       "to": {
         "node_type": "Model",
-        "id": "alphafold2"
+        "id": "af2-af2-multimer-proteinmpnn-original-soluble"
       },
       "properties": {}
     },
@@ -11120,6 +11517,18 @@
       "to": {
         "node_type": "Model",
         "id": "protenix"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "boltz-2"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "nesso-1"
       },
       "properties": {}
     },
@@ -12140,6 +12549,18 @@
       "to": {
         "node_type": "Model",
         "id": "deeprank-ab"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "dlab"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "abagipa"
       },
       "properties": {}
     },
@@ -13281,7 +13702,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -13317,7 +13738,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -14920,6 +15341,154 @@
       "to": {
         "node_type": "Model",
         "id": "deepnano-seq"
+      },
+      "properties": {}
+    },
+    {
+      "type": "BELONGS_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Category",
+        "id": "protein"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "binding_affinity"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "ic50_ec50"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "docking_score"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ACCEPTS",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "smiles"
+      },
+      "properties": {
+        "required": true
+      }
+    },
+    {
+      "type": "ACCEPTS",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "pdb"
+      },
+      "properties": {
+        "required": true
+      }
+    },
+    {
+      "type": "PRODUCES",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "json"
+      },
+      "properties": {}
+    },
+    {
+      "type": "HAS_LICENSE",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "License",
+        "id": "apache-2-0"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "boltz-2"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "terrabind"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ALTERNATIVE_TO",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "hermes"
+      },
+      "properties": {}
+    },
+    {
+      "type": "BASED_ON",
+      "from": {
+        "node_type": "Model",
+        "id": "nesso-1"
+      },
+      "to": {
+        "node_type": "Model",
+        "id": "boltz-2-terrabind-token-trunk"
       },
       "properties": {}
     },
@@ -17181,7 +17750,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -17327,7 +17896,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -17425,7 +17994,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -17535,7 +18104,7 @@
       },
       "to": {
         "node_type": "Model",
-        "id": "realmcat"
+        "id": "dekp"
       },
       "properties": {}
     },
@@ -18434,6 +19003,82 @@
       "from": {
         "node_type": "Tool",
         "id": "mutabind2"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "binding_affinity"
+      },
+      "properties": {}
+    },
+    {
+      "type": "ACCEPTS",
+      "from": {
+        "node_type": "Tool",
+        "id": "openfe"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "pdb"
+      },
+      "properties": {
+        "required": true
+      }
+    },
+    {
+      "type": "ACCEPTS",
+      "from": {
+        "node_type": "Tool",
+        "id": "openfe"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "smiles"
+      },
+      "properties": {
+        "required": true
+      }
+    },
+    {
+      "type": "PRODUCES",
+      "from": {
+        "node_type": "Tool",
+        "id": "openfe"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "json"
+      },
+      "properties": {}
+    },
+    {
+      "type": "PRODUCES",
+      "from": {
+        "node_type": "Tool",
+        "id": "openfe"
+      },
+      "to": {
+        "node_type": "FileType",
+        "id": "csv"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Tool",
+        "id": "openfe"
+      },
+      "to": {
+        "node_type": "Metric",
+        "id": "ddG_bind"
+      },
+      "properties": {}
+    },
+    {
+      "type": "MEASURES",
+      "from": {
+        "node_type": "Tool",
+        "id": "openfe"
       },
       "to": {
         "node_type": "Metric",
@@ -19385,6 +20030,7 @@
         "xbind",
         "aliyun-lucaone",
         "abaffinity",
+        "abagipa",
         "ablang",
         "affinityflow",
         "alphabind",
@@ -19460,6 +20106,7 @@
         "unikp",
         "diffdock",
         "kdnet",
+        "nesso-1",
         "onionnet-2",
         "pafnucy"
       ],
@@ -19474,6 +20121,7 @@
         "hdock",
         "megadock",
         "xbind",
+        "abagipa",
         "fudan-aippa",
         "google-deepmind-alphafold2",
         "antipasti",
@@ -19495,6 +20143,7 @@
         "zhang-itasser",
         "kdnet",
         "labind",
+        "nesso-1",
         "onionnet-2",
         "p2pxml",
         "pafnucy",
@@ -19593,6 +20242,7 @@
         "suspect-abl",
         "fudan-aippa",
         "bind-ddg",
+        "bindcraft",
         "ddgwizard",
         "esmtherm",
         "gearbind",
@@ -19678,6 +20328,7 @@
         "grasp",
         "sppider-seq",
         "xbind",
+        "bindcraft",
         "deepsurf",
         "diffdock",
         "hotspot-wizard",
@@ -19692,6 +20343,7 @@
         "sppider-seq",
         "xbind",
         "abaffinity",
+        "abagipa",
         "affinityflow",
         "alphabind",
         "antipasti",
@@ -19712,6 +20364,7 @@
         "marks-lab-ml-nanobody-maturation",
         "aist-multidim-vhh-maturation",
         "mvsf-ab",
+        "nesso-1",
         "p2pxml",
         "pafnucy",
         "zhanggroup-pplm-2026",
@@ -19720,6 +20373,7 @@
       "docking_score": [
         "hdock",
         "megadock",
+        "abagipa",
         "google-deepmind-alphafold3",
         "boltz-1",
         "boltz-2",
@@ -19727,6 +20381,7 @@
         "diffdock",
         "dlab",
         "gromacs",
+        "nesso-1",
         "onionnet-2",
         "bytedance-protenix",
         "rosettafold3"
@@ -19773,7 +20428,8 @@
         "rnabpflow"
       ],
       "ic50_ec50": [
-        "boltz-2"
+        "boltz-2",
+        "nesso-1"
       ],
       "tm": [
         "ddgwizard",
@@ -19804,6 +20460,7 @@
         "mcsm-ab2",
         "mmcsm-ab",
         "mutabind2",
+        "openfe",
         "prodigy"
       ],
       "kd": [
@@ -19819,7 +20476,8 @@
         "mcsm-ab",
         "mcsm-ab2",
         "mmcsm-ab",
-        "mutabind2"
+        "mutabind2",
+        "openfe"
       ]
     },
     "by_metric_dataset": {
@@ -19990,6 +20648,7 @@
       ],
       "protein": [
         "abaffinity",
+        "abagipa",
         "ablang",
         "affinityflow",
         "fudan-aippa",
@@ -20037,6 +20696,7 @@
         "marks-lab-ml-nanobody-maturation",
         "aist-multidim-vhh-maturation",
         "mvsf-ab",
+        "nesso-1",
         "fredhutch-nucleotide-cnn-shm",
         "helixon-omegafold",
         "onionnet-2",
